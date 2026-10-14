@@ -1,0 +1,9 @@
+.venv
+node_modules
+data
+__pycache__
+.pytest_cache
+server.py
+tests
+DESIGN.md
+*.zip

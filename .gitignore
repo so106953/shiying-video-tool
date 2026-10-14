@@ -1,0 +1,14 @@
+node_modules/
+.venv/
+data/
+__pycache__/
+.pytest_cache/
+*.log
+
+.vercel/
+dist/
+.env
+.env.*
+!.env.example
+*.pyc
+.DS_Store
