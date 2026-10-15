@@ -1,0 +1,305 @@
+{
+  "checked_at": "2026-10-15T04:42:04.842905+00:00",
+  "deployment": "https://shiying-video-tool-rho.vercel.app",
+  "scope": "一个公开样例/平台；完整下载、媒体轨检查、开头和结尾解码；不是所有链接保证",
+  "results": [
+    {
+      "group": "domestic",
+      "name": "今日头条",
+      "url": "https://m.toutiao.com/is/T3IfTiM4gd4/",
+      "status": "passed",
+      "stage": "complete",
+      "title": "黄海南部进行实弹射击 连续47天 禁止驶入！ #正午国防军事",
+      "format": "mp4",
+      "height": 1280,
+      "codec": "h264",
+      "bytes": 421940,
+      "sha256": "21367755cccf9b1699c0b2744317d3a2e7aea9be06b1a8bbc412bf6011685cb1",
+      "media": {
+        "programs": [],
+        "stream_groups": [],
+        "streams": [
+          {
+            "codec_name": "aac",
+            "codec_type": "audio"
+          },
+          {
+            "codec_name": "h264",
+            "codec_type": "video",
+            "width": 720,
+            "height": 1280
+          }
+        ],
+        "format": {
+          "duration": "7.870998"
+        }
+      },
+      "decoded_start_and_end": true
+    },
+    {
+      "group": "domestic",
+      "name": "哔哩哔哩",
+      "url": "https://www.bilibili.com/video/BV13x41117TL",
+      "status": "failed",
+      "stage": "parse",
+      "error": "平台暂时限制云端访问，请稍后重试。"
+    },
+    {
+      "group": "domestic",
+      "name": "小红书",
+      "url": "https://xhslink.cn/o/2yvcfMeyqk5",
+      "status": "passed",
+      "stage": "complete",
+      "title": "为什么国内很难做出好的 Personal Agent？",
+      "format": "mp4",
+      "height": 720,
+      "codec": "h264",
+      "bytes": 21709194,
+      "sha256": "26a2ff5f1f9318f214c35c89c97d03188c8133ee6945b10f3b12068d4103d5c9",
+      "media": {
+        "programs": [],
+        "stream_groups": [],
+        "streams": [
+          {
+            "codec_name": "h264",
+            "codec_type": "video",
+            "width": 960,
+            "height": 720
+          },
+          {
+            "codec_name": "aac",
+            "codec_type": "audio"
+          }
+        ],
+        "format": {
+          "duration": "744.638667"
+        }
+      },
+      "decoded_start_and_end": true
+    },
+    {
+      "group": "domestic",
+      "name": "微博",
+      "url": "https://m.weibo.cn/status/4189191225395228",
+      "status": "passed",
+      "stage": "complete",
+      "title": "柴犬柴犬的秒拍视频",
+      "format": "mp4",
+      "height": 480,
+      "codec": "avc1.64001e",
+      "bytes": 1810094,
+      "sha256": "17f407a0e005d2ab73b276e5d5e1d8345f89fecab7f9e521648f252738575aca",
+      "media": {
+        "programs": [],
+        "stream_groups": [],
+        "streams": [
+          {
+            "codec_name": "h264",
+            "codec_type": "video",
+            "width": 480,
+            "height": 480
+          },
+          {
+            "codec_name": "aac",
+            "codec_type": "audio"
+          }
+        ],
+        "format": {
+          "duration": "53.173991"
+        }
+      },
+      "decoded_start_and_end": true
+    },
+    {
+      "group": "domestic",
+      "name": "快手",
+      "status": "unsupported",
+      "stage": "engine_check",
+      "error": "当前 yt-dlp 没有快手专用解析器，本项目也未实现快手适配，撤下支持声明。"
+    },
+    {
+      "group": "domestic",
+      "name": "抖音",
+      "url": "https://v.douyin.com/ey2D3MfLLVs/",
+      "status": "passed",
+      "stage": "complete",
+      "title": "蹦……蹦……蹦……",
+      "format": "mp4",
+      "height": 1280,
+      "codec": "h264",
+      "bytes": 6057005,
+      "sha256": "0a805d62c18bee1903a170635add3cb6911d666e3573b222e770ae4b3358e34f",
+      "media": {
+        "programs": [],
+        "stream_groups": [],
+        "streams": [
+          {
+            "codec_name": "h264",
+            "codec_type": "video",
+            "width": 720,
+            "height": 1280
+          },
+          {
+            "codec_name": "aac",
+            "codec_type": "audio"
+          }
+        ],
+        "format": {
+          "duration": "16.114649"
+        }
+      },
+      "decoded_start_and_end": true
+    },
+    {
+      "group": "domestic",
+      "name": "西瓜视频",
+      "url": "https://www.ixigua.com/6996881461559165471",
+      "status": "failed",
+      "stage": "parse",
+      "error": "平台要求登录或人机验证，当前无法解析这个视频。可先尝试其他公开链接。"
+    },
+    {
+      "group": "international",
+      "name": "Dailymotion",
+      "url": "https://www.dailymotion.com/video/x5kesuj",
+      "status": "failed",
+      "stage": "parse",
+      "error": "这个视频只提供分离音视频、分片流或超过 256 MB 的格式，当前 Vercel 版本无法直接保存。请尝试其他公开视频。"
+    },
+    {
+      "group": "international",
+      "name": "Facebook",
+      "url": "https://www.facebook.com/radiokicksfm/videos/3676516585958356/",
+      "status": "failed",
+      "stage": "parse",
+      "error": "平台没有返回可用的视频信息。请确认链接可以公开播放，并重新复制完整分享链接后重试。"
+    },
+    {
+      "group": "international",
+      "name": "Instagram",
+      "url": "https://www.instagram.com/reel/Chunk8-jurw/",
+      "status": "passed",
+      "stage": "complete",
+      "title": "Video by instagram",
+      "format": "mp4",
+      "height": null,
+      "codec": null,
+      "bytes": 918120,
+      "sha256": "7a956bbb30f3fa0488b2fc687a077fb6156cd1b5fdd0b98157b26e6355a950ef",
+      "media": {
+        "programs": [],
+        "stream_groups": [],
+        "streams": [
+          {
+            "codec_name": "h264",
+            "codec_type": "video",
+            "width": 480,
+            "height": 854
+          }
+        ],
+        "format": {
+          "duration": "4.966667"
+        }
+      },
+      "decoded_start_and_end": true
+    },
+    {
+      "group": "international",
+      "name": "Reddit",
+      "url": "https://www.reddit.com/r/aww/comments/90bu6w/heat_index_was_110_degrees_so_we_offered_him_a/",
+      "status": "failed",
+      "stage": "parse",
+      "error": "平台要求登录或人机验证，当前无法解析这个视频。可先尝试其他公开链接。"
+    },
+    {
+      "group": "international",
+      "name": "Streamable",
+      "url": "https://streamable.com/dnd1",
+      "status": "passed",
+      "stage": "complete",
+      "title": "Mikel Oiarzabal scores to make it 0-3 for La Real against Espanyol",
+      "format": "mp4",
+      "height": 720,
+      "codec": "h264",
+      "bytes": 19286494,
+      "sha256": "1f88e60f1dcf2586123a061055dba68a9c34e03306c173eb18c4d564ca680124",
+      "media": {
+        "programs": [],
+        "stream_groups": [],
+        "streams": [
+          {
+            "codec_name": "h264",
+            "codec_type": "video",
+            "width": 1280,
+            "height": 720
+          },
+          {
+            "codec_name": "aac",
+            "codec_type": "audio"
+          }
+        ],
+        "format": {
+          "duration": "61.469002"
+        }
+      },
+      "decoded_start_and_end": true
+    },
+    {
+      "group": "international",
+      "name": "TikTok",
+      "url": "https://www.tiktok.com/@scout2015/video/6718335390845095173",
+      "status": "passed",
+      "stage": "complete",
+      "title": "Scramble up ur name & I’ll try to guess it😍❤️ #foryoupage #petsoftikt...",
+      "format": "mp4",
+      "height": 1024,
+      "codec": "h264",
+      "bytes": 2953029,
+      "sha256": "d2899f4428fa4c46a8dca6b0222bc313ffdeff0fd8ed6f99a300f1833b3fda3e",
+      "media": {
+        "programs": [],
+        "stream_groups": [],
+        "streams": [
+          {
+            "codec_name": "h264",
+            "codec_type": "video",
+            "width": 576,
+            "height": 1024
+          },
+          {
+            "codec_name": "aac",
+            "codec_type": "audio"
+          }
+        ],
+        "format": {
+          "duration": "10.495011"
+        }
+      },
+      "decoded_start_and_end": true
+    },
+    {
+      "group": "international",
+      "name": "Vimeo",
+      "url": "https://player.vimeo.com/video/54469442",
+      "status": "failed",
+      "stage": "parse",
+      "error": "平台拒绝了请求（403），请稍后重试或重新解析链接。"
+    },
+    {
+      "group": "international",
+      "name": "X / Twitter",
+      "url": "https://twitter.com/starwars/status/665052190608723968",
+      "status": "failed",
+      "stage": "parse",
+      "error": "平台没有返回可用的视频信息。请确认链接可以公开播放，并重新复制完整分享链接后重试。"
+    },
+    {
+      "group": "international",
+      "name": "YouTube",
+      "url": "https://youtu.be/EgVjw_-odnE",
+      "status": "failed",
+      "stage": "parse",
+      "error": "平台要求登录或人机验证，当前无法解析这个视频。可先尝试其他公开链接。"
+    }
+  ]
+}

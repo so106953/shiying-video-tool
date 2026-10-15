@@ -1,7 +1,7 @@
 {
-  "checked_at": "2026-10-15T04:42:04.842905+00:00",
+  "checked_at": "2026-10-15T05:14:54.163892+00:00",
   "deployment": "https://shiying-video-tool-rho.vercel.app",
-  "scope": "一个公开样例/平台；完整下载、媒体轨检查、开头和结尾解码；不是所有链接保证",
+  "scope": "基础全平台核查 + 本轮失败平台诊断与两项修复复验；各记录保留时间和测试部署。Dailymotion 未计为通过。",
   "results": [
     {
       "group": "domestic",
@@ -34,7 +34,9 @@
           "duration": "7.870998"
         }
       },
-      "decoded_start_and_end": true
+      "decoded_start_and_end": true,
+      "checked_at": "2026-10-15T04:42:04.842905+00:00",
+      "test_deployment": "https://shiying-video-tool-rho.vercel.app"
     },
     {
       "group": "domestic",
@@ -42,7 +44,11 @@
       "url": "https://www.bilibili.com/video/BV13x41117TL",
       "status": "failed",
       "stage": "parse",
-      "error": "平台暂时限制云端访问，请稍后重试。"
+      "error": "平台暂时限制云端访问，请稍后重试。",
+      "checked_at": "2026-10-15T04:42:04.842905+00:00",
+      "test_deployment": "https://shiying-video-tool-rho.vercel.app",
+      "diagnosis": "当前 Vercel 云端访问公开视频页与接口均返回 412，未取得视频。",
+      "diagnosed_at": "2026-10-15T05:14:54.163892+00:00"
     },
     {
       "group": "domestic",
@@ -75,7 +81,9 @@
           "duration": "744.638667"
         }
       },
-      "decoded_start_and_end": true
+      "decoded_start_and_end": true,
+      "checked_at": "2026-10-15T04:42:04.842905+00:00",
+      "test_deployment": "https://shiying-video-tool-rho.vercel.app"
     },
     {
       "group": "domestic",
@@ -108,14 +116,18 @@
           "duration": "53.173991"
         }
       },
-      "decoded_start_and_end": true
+      "decoded_start_and_end": true,
+      "checked_at": "2026-10-15T04:42:04.842905+00:00",
+      "test_deployment": "https://shiying-video-tool-rho.vercel.app"
     },
     {
       "group": "domestic",
       "name": "快手",
       "status": "unsupported",
       "stage": "engine_check",
-      "error": "当前 yt-dlp 没有快手专用解析器，本项目也未实现快手适配，撤下支持声明。"
+      "error": "当前 yt-dlp 没有快手专用解析器，本项目也未实现快手适配，撤下支持声明。",
+      "checked_at": "2026-10-15T04:42:04.842905+00:00",
+      "test_deployment": "https://shiying-video-tool-rho.vercel.app"
     },
     {
       "group": "domestic",
@@ -148,15 +160,45 @@
           "duration": "16.114649"
         }
       },
-      "decoded_start_and_end": true
+      "decoded_start_and_end": true,
+      "checked_at": "2026-10-15T04:42:04.842905+00:00",
+      "test_deployment": "https://shiying-video-tool-rho.vercel.app"
     },
     {
       "group": "domestic",
       "name": "西瓜视频",
-      "url": "https://www.ixigua.com/6996881461559165471",
-      "status": "failed",
-      "stage": "parse",
-      "error": "平台要求登录或人机验证，当前无法解析这个视频。可先尝试其他公开链接。"
+      "url": "https://www.ixigua.com/6996881461559165471/",
+      "status": "passed",
+      "stage": "complete",
+      "title": "盲目涉水风险大，亲身示范高水位行车注意事项",
+      "format": "mp4",
+      "height": 720,
+      "codec": "h264",
+      "bytes": 239255392,
+      "sha256": "31917d2937d3d2d0f3bd1afa78959cdcee4cb122ccdc3d25bba7db261246be84",
+      "media": {
+        "programs": [],
+        "stream_groups": [],
+        "streams": [
+          {
+            "codec_name": "h264",
+            "codec_type": "video",
+            "width": 1280,
+            "height": 720
+          },
+          {
+            "codec_name": "aac",
+            "codec_type": "audio"
+          }
+        ],
+        "format": {
+          "duration": "1030.066667"
+        }
+      },
+      "decoded_start_and_end": true,
+      "checked_at": "2026-10-15T05:14:54.163892+00:00",
+      "test_deployment": "https://shiying-video-tool-jc2lyl11n-chucks-projects-6183d2c6.vercel.app",
+      "previous_sample_url": "https://www.ixigua.com/6996881461559165471"
     },
     {
       "group": "international",
@@ -164,7 +206,11 @@
       "url": "https://www.dailymotion.com/video/x5kesuj",
       "status": "failed",
       "stage": "parse",
-      "error": "这个视频只提供分离音视频、分片流或超过 256 MB 的格式，当前 Vercel 版本无法直接保存。请尝试其他公开视频。"
+      "error": "这个视频只提供分离音视频、分片流或超过 256 MB 的格式，当前 Vercel 版本无法直接保存。请尝试其他公开视频。",
+      "checked_at": "2026-10-15T04:42:04.842905+00:00",
+      "test_deployment": "https://shiying-video-tool-rho.vercel.app",
+      "diagnosis": "分片合并能力已增加并通过固定媒体回归测试，但本轮新部署未能稳定取得平台分片，线上实测仍未通过。",
+      "diagnosed_at": "2026-10-15T05:14:54.163892+00:00"
     },
     {
       "group": "international",
@@ -172,7 +218,11 @@
       "url": "https://www.facebook.com/radiokicksfm/videos/3676516585958356/",
       "status": "failed",
       "stage": "parse",
-      "error": "平台没有返回可用的视频信息。请确认链接可以公开播放，并重新复制完整分享链接后重试。"
+      "error": "平台没有返回可用的视频信息。请确认链接可以公开播放，并重新复制完整分享链接后重试。",
+      "checked_at": "2026-10-15T04:42:04.842905+00:00",
+      "test_deployment": "https://shiying-video-tool-rho.vercel.app",
+      "diagnosis": "追加公开样例仍要求注册账号；未取得可下载媒体。",
+      "diagnosed_at": "2026-10-15T05:14:54.163892+00:00"
     },
     {
       "group": "international",
@@ -201,7 +251,9 @@
           "duration": "4.966667"
         }
       },
-      "decoded_start_and_end": true
+      "decoded_start_and_end": true,
+      "checked_at": "2026-10-15T04:42:04.842905+00:00",
+      "test_deployment": "https://shiying-video-tool-rho.vercel.app"
     },
     {
       "group": "international",
@@ -209,7 +261,11 @@
       "url": "https://www.reddit.com/r/aww/comments/90bu6w/heat_index_was_110_degrees_so_we_offered_him_a/",
       "status": "failed",
       "stage": "parse",
-      "error": "平台要求登录或人机验证，当前无法解析这个视频。可先尝试其他公开链接。"
+      "error": "平台要求登录或人机验证，当前无法解析这个视频。可先尝试其他公开链接。",
+      "checked_at": "2026-10-15T04:42:04.842905+00:00",
+      "test_deployment": "https://shiying-video-tool-rho.vercel.app",
+      "diagnosis": "当前云端请求要求账号认证；未取得可下载媒体。",
+      "diagnosed_at": "2026-10-15T05:14:54.163892+00:00"
     },
     {
       "group": "international",
@@ -242,7 +298,9 @@
           "duration": "61.469002"
         }
       },
-      "decoded_start_and_end": true
+      "decoded_start_and_end": true,
+      "checked_at": "2026-10-15T04:42:04.842905+00:00",
+      "test_deployment": "https://shiying-video-tool-rho.vercel.app"
     },
     {
       "group": "international",
@@ -275,7 +333,9 @@
           "duration": "10.495011"
         }
       },
-      "decoded_start_and_end": true
+      "decoded_start_and_end": true,
+      "checked_at": "2026-10-15T04:42:04.842905+00:00",
+      "test_deployment": "https://shiying-video-tool-rho.vercel.app"
     },
     {
       "group": "international",
@@ -283,15 +343,47 @@
       "url": "https://player.vimeo.com/video/54469442",
       "status": "failed",
       "stage": "parse",
-      "error": "平台拒绝了请求（403），请稍后重试或重新解析链接。"
+      "error": "平台拒绝了请求（403），请稍后重试或重新解析链接。",
+      "checked_at": "2026-10-15T04:42:04.842905+00:00",
+      "test_deployment": "https://shiying-video-tool-rho.vercel.app",
+      "diagnosis": "追加测试仍要求登录或拒绝云端访问，未取得可下载媒体。",
+      "diagnosed_at": "2026-10-15T05:14:54.163892+00:00"
     },
     {
       "group": "international",
       "name": "X / Twitter",
-      "url": "https://twitter.com/starwars/status/665052190608723968",
-      "status": "failed",
-      "stage": "parse",
-      "error": "平台没有返回可用的视频信息。请确认链接可以公开播放，并重新复制完整分享链接后重试。"
+      "url": "https://x.com/historyinmemes/status/1790637656616943991",
+      "status": "passed",
+      "stage": "complete",
+      "title": "Historic Vids - One of the most intense moments in history",
+      "format": "mp4",
+      "height": 720,
+      "codec": null,
+      "bytes": 1404023,
+      "sha256": "a2caa263ef7a80576019b7d3f0914baddfe5aae27f66875c36b6cf4d4159803f",
+      "media": {
+        "programs": [],
+        "stream_groups": [],
+        "streams": [
+          {
+            "codec_name": "h264",
+            "codec_type": "video",
+            "width": 728,
+            "height": 720
+          },
+          {
+            "codec_name": "aac",
+            "codec_type": "audio"
+          }
+        ],
+        "format": {
+          "duration": "15.557370"
+        }
+      },
+      "decoded_start_and_end": true,
+      "checked_at": "2026-10-15T05:14:54.163892+00:00",
+      "test_deployment": "https://shiying-video-tool-jc2lyl11n-chucks-projects-6183d2c6.vercel.app",
+      "previous_sample_url": "https://twitter.com/starwars/status/665052190608723968"
     },
     {
       "group": "international",
@@ -299,7 +391,26 @@
       "url": "https://youtu.be/EgVjw_-odnE",
       "status": "failed",
       "stage": "parse",
-      "error": "平台要求登录或人机验证，当前无法解析这个视频。可先尝试其他公开链接。"
+      "error": "平台要求登录或人机验证，当前无法解析这个视频。可先尝试其他公开链接。",
+      "checked_at": "2026-10-15T04:42:04.842905+00:00",
+      "test_deployment": "https://shiying-video-tool-rho.vercel.app",
+      "diagnosis": "YouTube 要求登录并确认不是机器人，当前云端无法完成此验证。",
+      "diagnosed_at": "2026-10-15T05:14:54.163892+00:00"
     }
-  ]
+  ],
+  "optimization_results": {
+    "fixed": [
+      "西瓜视频",
+      "X / Twitter"
+    ],
+    "still_failed": [
+      "哔哩哔哩",
+      "YouTube",
+      "Facebook",
+      "Reddit",
+      "Vimeo",
+      "Dailymotion"
+    ],
+    "hls_regression": "tests/test_hls_remux.mjs 使用合成媒体验证完整分片合并，不替代 Dailymotion 线上平台验证。"
+  }
 }

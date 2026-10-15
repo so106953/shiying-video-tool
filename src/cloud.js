@@ -45,6 +45,20 @@ async function run(id) {
   controllers.set(id, controller);
   update(id, { status: 'downloading', error: null });
   try {
+    const initialTask = read(TASKS).find(task => task.id === id);
+    if (initialTask?.delivery === 'hls') {
+      const { assembleHls } = await import('./hls');
+      await deleteChunks(id);
+      let lastUpdate = 0;
+      const blob = await assembleHls(initialTask.ticket, controller.signal, change => {
+        if (performance.now() - lastUpdate > 500) { update(id, { ...change, eta: null }); lastUpdate = performance.now(); }
+      });
+      if (controller.signal.aborted) throw new DOMException('Aborted', 'AbortError');
+      await chunkAction('readwrite', store => store.put({ key: `${id}:000000000000`, offset: 0, blob }));
+      if (controller.signal.aborted) throw new DOMException('Aborted', 'AbortError');
+      update(id, { status: 'completed', progress: 100, downloaded: blob.size, total: blob.size, speed: 0, eta: null, completed: Date.now() / 1000 });
+      return;
+    }
     const chunks = await chunksFor(id);
     let offset = 0;
     for (const piece of chunks) { if (piece.offset !== offset) throw new Error('文件缓存不完整，请移除任务后重新下载。'); offset += piece.blob.size; }
@@ -100,6 +114,7 @@ export async function cloudApi(path, options = {}) {
     if (read(TASKS).filter(item => ['queued', 'downloading'].includes(item.status)).length >= 20) throw new Error('队列已满，请先完成当前下载。');
     await database();
     const task = { id: crypto.randomUUID().replaceAll('-', ''), parsed_id: parsed.id, url: parsed.url, title: parsed.title, thumbnail: parsed.thumbnail, platform: parsed.platform, kind: body.kind, format: body.format, height: body.height, ticket: source.ticket, cloud: true, filename: `${parsed.title.replace(/[\\/:*?"<>|]/g, '_').slice(0, 120)}.${source.format}`, status: body.queued ? 'paused' : 'queued', created: Date.now() / 1000, progress: 0, downloaded: 0, total: source.size || 0, speed: 0, eta: null, error: null };
+    task.delivery = source.delivery || 'direct';
     write(TASKS, [task, ...read(TASKS)]);
     pump();
     return task;

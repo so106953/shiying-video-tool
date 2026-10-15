@@ -10,11 +10,11 @@ CASES = [
  ('domestic','小红书','https://xhslink.cn/o/2yvcfMeyqk5'),
  ('domestic','哔哩哔哩','https://www.bilibili.com/video/BV13x41117TL'),
  ('domestic','微博','https://m.weibo.cn/status/4189191225395228'),
- ('domestic','西瓜视频','https://www.ixigua.com/6996881461559165471'),
+ ('domestic','西瓜视频','https://www.ixigua.com/6996881461559165471/'),
  ('international','YouTube','https://youtu.be/EgVjw_-odnE'),
  ('international','TikTok','https://www.tiktok.com/@scout2015/video/6718335390845095173'),
  ('international','Instagram','https://www.instagram.com/reel/Chunk8-jurw/'),
- ('international','X / Twitter','https://twitter.com/starwars/status/665052190608723968'),
+ ('international','X / Twitter','https://x.com/historyinmemes/status/1790637656616943991'),
  ('international','Vimeo','https://player.vimeo.com/video/54469442'),
  ('international','Facebook','https://www.facebook.com/radiokicksfm/videos/3676516585958356/'),
  ('international','Dailymotion','https://www.dailymotion.com/video/x5kesuj'),
@@ -34,17 +34,24 @@ def verify(case):
    options=[o for o in item['options']if o['kind']=='video']
    if not options:row['error']='没有完整视频格式';return row
    option=next((o for o in options if str(o.get('codec')or'').startswith(('h264','avc'))),options[0])
+   if option.get('delivery')=='hls':option=min((o for o in options if o.get('delivery')=='hls'),key=lambda o:o.get('height')or 0)
    row.update(format=option['format'],height=option.get('height'),codec=option.get('codec'))
    with tempfile.TemporaryDirectory(prefix='shiying-verify-')as tmp:
     path=pathlib.Path(tmp)/('media.'+option['format']);offset=0;digest=hashlib.sha256();complete=False
-    with path.open('wb')as output:
-     for _ in range(87):
-      r=c.post('/api/chunk',json={'ticket':option['ticket'],'offset':offset})
-      if r.status_code!=200:
-       row['error']=r.json().get('detail','媒体请求失败');return row
-      data=r.content;output.write(data);digest.update(data);offset+=len(data)
-      if r.headers.get('x-media-end')=='1':complete=True;break
-      if not data:break
+    if option.get('delivery')=='hls':
+     from verify_browser_download import save_browser_download
+     save_browser_download(os.environ['SHIYING_VERIFY_URL'],url,option.get('height'),path)
+     data=path.read_bytes();offset=len(data);digest.update(data);complete=True
+     row['browser_save_and_playback']=True
+    else:
+     with path.open('wb')as output:
+      for _ in range(87):
+       r=c.post('/api/chunk',json={'ticket':option['ticket'],'offset':offset})
+       if r.status_code!=200:
+        row['error']=r.json().get('detail','媒体请求失败');return row
+       data=r.content;output.write(data);digest.update(data);offset+=len(data)
+       if r.headers.get('x-media-end')=='1':complete=True;break
+       if not data:break
     if not complete or not offset:row['error']='下载没有正常结束';return row
     row.update(bytes=offset,sha256=digest.hexdigest(),stage='media_check')
     result=subprocess.run(['ffprobe','-v','error','-show_entries','format=duration:stream=codec_type,codec_name,width,height','-of','json',str(path)],capture_output=True,text=True,timeout=30,check=True)

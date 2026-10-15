@@ -67,6 +67,35 @@ def ydl_options():
             'max_filesize': 8 * 1024**3, 'skip_unavailable_fragments': False,
             'js_runtimes': {'node': {'path': _node_executable()}}}
 
+def extract_public_ixigua(url):
+    """Use the same video's public Toutiao player when the Ixigua page omits SSR data."""
+    host = (urlsplit(url).hostname or '').lower()
+    if host not in ('www.ixigua.com', 'ixigua.com', 'm.ixigua.com'):
+        return None
+    match = re.fullmatch(r'/(?:video/)?(\d+)/?', urlsplit(url).path)
+    if not match:
+        return None
+    ident = match[1]
+    with SafeYoutubeDL(ydl_options()) as ydl:
+        try:
+            info = ydl.extract_info(f'https://www.toutiao.com/video/{ident}/', download=False)
+        except yt_dlp.utils.DownloadError:
+            # A trailing slash also avoids the upstream Ixigua URL regex truncating the final digit.
+            original = urlsplit(url)._replace(path=f'/{ident}/').geturl()
+            info = ydl.extract_info(original, download=False)
+        if not info or str(info.get('id')) != ident:
+            raise ValueError('未找到这条西瓜视频的公开播放信息。')
+        info['extractor_key'] = 'Ixigua'
+        return info
+
+def extract_public_twitter(url):
+    """Read the platform's public embedded-tweet endpoint without a logged-in account."""
+    host = (urlsplit(url).hostname or '').lower()
+    if host not in ('x.com', 'www.x.com', 'twitter.com', 'www.twitter.com', 'mobile.twitter.com'):
+        return None
+    with SafeYoutubeDL(ydl_options() | {'extractor_args': {'twitter': {'api': ['syndication']}}}) as ydl:
+        return ydl.extract_info(url, download=False)
+
 def friendly_error(error):
     raw = re.sub(r'\x1b\[[0-9;]*m', '', str(error)).removeprefix('ERROR: ').strip()
     low = raw.lower()

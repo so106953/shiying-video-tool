@@ -15,15 +15,15 @@ Vercel 版本通过服务器解析媒体地址，再分块传输到浏览器；�
 
 ## 平台验证情况
 
-最近一轮已逐项核查平台目录内全部 16 个平台：**7 个公开样例通过，8 个公开样例未通过，快手尚未适配**。
+最新状态：**9 个平台的公开样例通过，6 个平台样例未通过，1 个平台尚未适配**。
 
-- 通过：抖音、今日头条、小红书、微博、TikTok、Instagram、Streamable。
-- 未通过：哔哩哔哩、西瓜视频、YouTube、X / Twitter、Vimeo、Facebook、Dailymotion、Reddit。
-- 尚未适配：快手；当前引擎和本项目没有专用解析器，已撤下支持声明。
+- 通过：今日头条、小红书、微博、抖音、西瓜视频、Instagram、Streamable、TikTok、X / Twitter。
+- 未通过：哔哩哔哩、Dailymotion、Facebook、Reddit、Vimeo、YouTube。
+- 尚未适配：快手。
 
-通过标准是线上 API 解析、完整下载、媒体轨检查以及视频开头与结尾解码；每个平台一个公开样例。失败样例不表示平台永远不可用，通过样例也不保证任意链接可下载。首页只展示通过的平台，平台目录显示实际检查结果与时间。详见 [验证报告](docs/platform-verification.md)、[原始证据](docs/platform-verification.json) 和 [可复用验证脚本](scripts/verify_platforms.py)。
+通过标准是线上解析、完整下载、媒体轨检查和开头/结尾解码；每个平台至少一个公开样例。首页仅展示通过的平台，平台目录展示时间与失败原因。基线失败记录仍保留；X 更换了一条有效公开视频做修复复验，不代表旧帖子已恢复。详见 [验证报告](docs/platform-verification.md)、[JSON 证据](docs/platform-verification.json)、[验证脚本](scripts/verify_platforms.py)。
 
-小红书支持 `xhslink.cn` 和 `xhslink.com` 分享链接及手机分享页数据。平台登录、人机验证、地区、隐私设置与链接失效仍可能影响下载。当前云端版本只支持完整 HTTP/HTTPS 媒体，单个文件上限 256 MB，不合并分离音视频或 HLS/DASH，不下载 DRM 保护内容。
+小红书支持 `xhslink.cn` 和 `xhslink.com` 分享链接及手机分享页。西瓜视频支持相同视频编号的头条公开播放器回退；X 使用公开嵌入数据。已增加未加密、编码连续 MPEG-TS 分片合并能力（64 MB 内），暂停后重新开始；Dailymotion 本轮线上验证仍未通过，未列入可用平台。其他完整媒体的单文件上限仍为 256 MB。不合并分离音视频、不下载加密/DRM 内容；登录、验证、地区和隐私限制仍会影响部分链接。
 
 ## 本地运行当前云端版本
 
@@ -81,6 +81,8 @@ npm run dev
 ```bash
 npm run build
 python -m py_compile engine.py api/index.py server.py
+python -m unittest discover -s tests -v
+node tests/test_hls_remux.mjs
 ```
 
 平台可用性需要对公开链接进行实际解析、下载和播放测试，构建成功不能替代平台测试。
