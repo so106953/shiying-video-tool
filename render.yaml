@@ -1,0 +1,15 @@
+services:
+  - type: web
+    name: shiying-download-worker
+    runtime: docker
+    plan: free
+    dockerfilePath: ./Dockerfile.worker
+    envVars:
+      - key: PORT
+        value: "8787"
+      - key: SHIYING_WORKER_TOKEN
+        generateValue: true
+      - key: SHIYING_DATA_DIR
+        value: /tmp/shiying
+      - key: SHIYING_CACHE_TTL_SECONDS
+        value: "86400"

@@ -78,6 +78,30 @@ def tasks_all():
         return [json.loads(r['payload']) for r in db.execute('SELECT payload FROM tasks ORDER BY created DESC LIMIT 200')]
 
 
+def cleanup_expired():
+    """Optional temporary-storage policy; active jobs are never removed."""
+    ttl = int(os.environ.get('SHIYING_CACHE_TTL_SECONDS', '0'))
+    if ttl <= 0:
+        return
+    cutoff = time.time() - ttl
+    with LOCK, connect() as db:
+        for row in db.execute('SELECT id, payload FROM tasks').fetchall():
+            task = json.loads(row['payload'])
+            touched = task.get('last_access') or task.get('completed') or task['created']
+            if (row['id'] not in ACTIVE and touched < cutoff
+                    and task['status'] in ('completed', 'failed', 'cancelled', 'paused')):
+                shutil.rmtree(FILES / row['id'], ignore_errors=True)
+                db.execute('DELETE FROM tasks WHERE id=?', (row['id'],))
+        db.execute('DELETE FROM parsed WHERE created < ?', (cutoff,))
+
+
+def cache_cleaner():
+    while not SHUTDOWN.is_set():
+        cleanup_expired()
+        if SHUTDOWN.wait(60):
+            return
+
+
 def parse_one(url):
     validate_url(url)
     with download_session(url) as ydl:
@@ -203,6 +227,9 @@ async def lifespan(app):
         thread = threading.Thread(target=worker, daemon=True)
         WORKERS.append(thread)
         thread.start()
+    cleaner = threading.Thread(target=cache_cleaner, daemon=True)
+    WORKERS.append(cleaner)
+    cleaner.start()
     yield
     SHUTDOWN.set()
     WAKE.set()
@@ -351,12 +378,14 @@ def remove_download(ident: str):
 
 @app.get('/api/tasks/{ident}/file')
 def download_file(ident: str, preview: bool = False):
-    task = task_get(ident)
-    if task['status'] != 'completed' or not task['filename']:
-        raise HTTPException(409, '文件尚未完成，请等待下载完成。')
-    file = (FILES / ident / task['filename']).resolve()
-    if not file.is_relative_to(FILES) or not file.is_file():
-        raise HTTPException(404, '文件已被移动或删除，请重新下载。')
+    with LOCK:
+        task = task_get(ident)
+        if task['status'] != 'completed' or not task['filename']:
+            raise HTTPException(409, '文件尚未完成，请等待下载完成。')
+        file = (FILES / ident / task['filename']).resolve()
+        if not file.is_relative_to(FILES) or not file.is_file():
+            raise HTTPException(404, '文件已被移动或删除，请重新下载。')
+        task_update(ident, last_access=time.time())
     return FileResponse(file, filename=task['filename'], content_disposition_type='inline' if preview else 'attachment')
 
 
