@@ -44,7 +44,7 @@ function BatchResults({ results, update, start, defaults, notify }) {
   async function retry(item) {
     setRetrying(previous => new Set(previous).add(item.id));
     try {
-      const data = await post('/parse', { urls: [item.url] });
+      const data = await post('/parse', { urls: [item.url], backend: defaults.preferWorker ? 'worker' : 'auto' });
       const replacement = data.results[0];
       update(old => old.map(row => row.id === item.id ? replacement : row));
       if (replacement.status === 'success') setSelected(old => new Set(old).add(replacement.id));
@@ -76,7 +76,7 @@ export default function Parser({ results, setResults, input, setInput, mode, set
     if (urls.length > 20) { setError('每批最多解析 20 个链接，请分批处理。'); return; }
     setBusy(true); setError(''); setResults([]);
     try {
-      const response = await post('/parse', { urls });
+      const response = await post('/parse', { urls, backend: defaults.preferWorker ? 'worker' : 'auto' });
       setResults(response.results);
       parsedDone();
       if (mode === 'single' && response.results[0].status === 'error') setError(response.results[0].error);

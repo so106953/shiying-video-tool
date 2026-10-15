@@ -9,7 +9,7 @@ import { api, post, saveFile, fileUrl } from './api';
 import './styles.css';
 
 function loadDefaults() {
-  const base = { videoFormat: 'mp4', audioFormat: 'mp3', autoSave: true };
+  const base = { videoFormat: 'mp4', audioFormat: 'mp3', autoSave: true, preferWorker: false };
   try { return { ...base, ...JSON.parse(localStorage.getItem('shiying.preferences.v1') || '{}') }; } catch { return base; }
 }
 
@@ -90,7 +90,7 @@ function App() {
   function useItem(item) { setInput(item.url); setResults([]); setMode('single'); setPage('parse'); notify('链接已填入，点击“解析链接”获取最新信息。'); }
   return <><Shell page={page} setPage={setPage} activeCount={tasks.filter(task => ['queued', 'downloading', 'processing'].includes(task.status)).length} health={health} help={() => setModal({ type: 'help' })}>
     {!health ? <div className="service-banner" role="status"><AlertCircle size={18}/>正在连接下载服务。如果长时间未连接，请按启动说明运行服务。</div> : null}
-    {page === 'parse' ? <Parser results={results} setResults={setResults} input={input} setInput={setInput} mode={mode} setMode={setMode} start={start} defaults={defaults} notify={notify} morePlatforms={() => setModal({ type: 'platforms' })} parsedDone={refreshHistory}><Queue tasks={tasks} open={() => setPage('downloads')} {...taskActions}/></Parser> : null}
+    {page === 'parse' ? <Parser results={results} setResults={setResults} input={input} setInput={setInput} mode={mode} setMode={setMode} start={start} defaults={{ ...defaults, preferWorker: Boolean(defaults.preferWorker && health?.worker_configured) }} notify={notify} morePlatforms={() => setModal({ type: 'platforms' })} parsedDone={refreshHistory}><Queue tasks={tasks} open={() => setPage('downloads')} {...taskActions}/></Parser> : null}
     {page === 'downloads' ? <Downloads tasks={tasks} health={health} newDownload={() => setPage('parse')} {...taskActions}/> : null}
     {page === 'history' ? <History history={history} useItem={useItem} clear={() => setModal({ type: 'history' })}/> : null}
     {page === 'settings' ? <SettingsPage health={health} defaults={defaults} updateDefaults={updateDefaults}/> : null}

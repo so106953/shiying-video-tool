@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import argparse
+import hmac
 import asyncio
 import ipaddress
 import json
@@ -22,11 +23,14 @@ from fastapi import FastAPI, HTTPException, Request
 from fastapi.responses import FileResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, Field
+from engine import validate_url, metadata, friendly_error, ydl_options
+from worker_auth import download_session, session_status
 
 ROOT = Path(__file__).resolve().parent
 DATA = Path(os.environ.get('SHIYING_DATA_DIR', ROOT / 'data')).resolve()
+DATA.mkdir(parents=True, exist_ok=True, mode=0o700)
 FILES = DATA / 'downloads'
-FILES.mkdir(parents=True, exist_ok=True)
+FILES.mkdir(parents=True, exist_ok=True, mode=0o700)
 DB = DATA / 'shiying.sqlite3'
 WORKERS: list[threading.Thread] = []
 SHUTDOWN = threading.Event()
@@ -49,6 +53,7 @@ with connect() as db:
     CREATE TABLE IF NOT EXISTS parsed (id TEXT PRIMARY KEY, payload TEXT NOT NULL, created REAL NOT NULL);
     CREATE TABLE IF NOT EXISTS tasks (id TEXT PRIMARY KEY, payload TEXT NOT NULL, created REAL NOT NULL);
     ''')
+    os.chmod(DB, 0o600)
 
 
 def task_get(ident: str):
@@ -73,90 +78,14 @@ def tasks_all():
         return [json.loads(r['payload']) for r in db.execute('SELECT payload FROM tasks ORDER BY created DESC LIMIT 200')]
 
 
-def validate_url(value: str, resolve=True) -> str:
-    value = value.strip()
-    if len(value) > 4096:
-        raise ValueError('链接过长')
-    parts = urlsplit(value)
-    if parts.scheme not in ('https', 'http') or not parts.hostname or parts.username or parts.password:
-        raise ValueError('请输入有效的 http 或 https 视频链接')
-    host = parts.hostname.lower().rstrip('.')
-    if host in ('localhost', 'metadata.google.internal') or host.endswith(('.localhost', '.local', '.internal')):
-        raise ValueError('不支持本机或内网地址，请使用公开视频链接')
-    if parts.port and parts.port not in (80, 443):
-        raise ValueError('仅支持标准 http/https 端口')
-    try:
-        addresses = [ipaddress.ip_address(host)]
-    except ValueError:
-        if not resolve:
-            return value
-        try:
-            addresses = [ipaddress.ip_address(item[4][0]) for item in socket.getaddrinfo(host, parts.port or 443, type=socket.SOCK_STREAM)]
-        except socket.gaierror as exc:
-            raise ValueError('无法找到这个网站，请检查链接或网络') from exc
-    if not addresses or any(not address.is_global for address in addresses):
-        raise ValueError('不支持本机或内网地址，请使用公开视频链接')
-    return value
-
-
-class SafeYoutubeDL(yt_dlp.YoutubeDL):
-    def urlopen(self, req):
-        target = req if isinstance(req, str) else getattr(req, 'url', None) or getattr(req, 'full_url', '')
-        validate_url(target)
-        return super().urlopen(req)
-
-
-class QuietLog:
-    def debug(self, message): pass
-    def warning(self, message): pass
-    def error(self, message): pass
-
-
-def ydl_options():
-    return {'quiet': True, 'no_warnings': True, 'logger': QuietLog(), 'noplaylist': True, 'compat_opts': {'no-certifi'},
-            'socket_timeout': 15, 'retries': 1, 'extractor_retries': 1,
-            'cachedir': False, 'restrictfilenames': False, 'windowsfilenames': True,
-            'max_filesize': 8 * 1024**3, 'skip_unavailable_fragments': False}
-
-
-def friendly_error(error):
-    raw = re.sub(r'\x1b\[[0-9;]*m', '', str(error)).removeprefix('ERROR: ').strip()
-    low = raw.lower()
-    if 'unsupported url' in low:
-        return '暂不支持这个链接。请使用视频详情页或 MP4/WebM 直链。'
-    if any(word in low for word in ['sign in', 'login', 'cookies', 'not a bot', 'fresh cookies']):
-        return '平台要求登录或人机验证，当前无法解析这个视频。可先尝试其他公开链接。'
-    if any(word in low for word in ['private video', 'removed', 'not available', '404', 'unavailable']):
-        return '视频不存在、已设为私密或在当前地区不可用。'
-    if '403' in low:
-        return '平台拒绝了请求（403），请稍后重试或重新解析链接。'
-    if any(word in low for word in ['timeout', 'timed out', 'network', 'connection']):
-        return '网络请求失败或超时，请检查网络后重试。'
-    if 'ffmpeg' in low:
-        return '这个格式需要 FFmpeg。请安装 FFmpeg 并重启服务。'
-    return raw[:300] or '解析失败，请检查链接后重试。'
-
-
-def metadata(info, url):
-    formats = info.get('formats') or [info]
-    heights = sorted({int(f['height']) for f in formats if f.get('height') and f.get('vcodec') != 'none'}, reverse=True)
-    sizes = [f.get('filesize') or f.get('filesize_approx') for f in formats if f.get('vcodec') != 'none']
-    platform = info.get('extractor_key') or info.get('extractor') or '媒体直链'
-    platform = {'BiliBili': '哔哩哔哩', 'Youtube': 'YouTube', 'Douyin': '抖音', 'TikTok': 'TikTok', 'Generic': '媒体直链'}.get(platform, platform)
-    direct = info.get('direct') or (str(info.get('extractor_key', '')).lower() == 'generic' and urlsplit(url).path.lower().endswith(('.mp4', '.webm', '.mov', '.mp3', '.m4a')))
-    return {'id': uuid.uuid4().hex, 'url': url, 'title': info.get('title') or Path(urlsplit(url).path).name or '视频',
-            'platform': platform, 'uploader': info.get('uploader') or info.get('channel') or urlsplit(url).hostname,
-            'thumbnail': info.get('thumbnail'), 'duration': info.get('duration'), 'heights': heights,
-            'size': max((s for s in sizes if s), default=None), 'ext': info.get('ext') or 'mp4',
-            'direct': bool(direct), 'created': time.time(), 'status': 'success'}
-
-
 def parse_one(url):
     validate_url(url)
-    with SafeYoutubeDL(ydl_options()) as ydl:
+    with download_session(url) as ydl:
         info = ydl.extract_info(url, download=False)
     if not info or info.get('_type') in ('playlist', 'multi_video'):
         raise ValueError('请使用单个视频的详情页链接，暂不支持整份播放列表。')
+    if info.get('has_drm'):
+        raise ValueError('这个视频受 DRM 内容保护，当前不能下载。')
     result = metadata(info, url)
     with connect() as db:
         db.execute('INSERT INTO parsed VALUES (?,?,?)', (result['id'], json.dumps(result, ensure_ascii=False), result['created']))
@@ -193,6 +122,8 @@ def perform_download(ident):
             last_update[0] = now
             downloaded = progress.get('downloaded_bytes') or 0
             total = progress.get('total_bytes') or progress.get('total_bytes_estimate') or 0
+            if downloaded > 256 * 1024**2 or total > 256 * 1024**2:
+                raise ValueError('文件超过 256 MB，请选择较低画质。')
             latest_bytes[0] = downloaded
             task_update(ident, status='downloading', downloaded=downloaded, total=total,
                         progress=min(99, round(downloaded / total * 100, 1)) if total else 0,
@@ -210,7 +141,7 @@ def perform_download(ident):
         opts['postprocessors'] = [{'key': 'FFmpegExtractAudio', 'preferredcodec': task['format'], 'preferredquality': '192'}]
     elif HAS_FFMPEG:
         if task['format'] == 'mp4':
-            opts['format'] = f'bestvideo{limit}[ext=mp4]+bestaudio[ext=m4a]/best{limit}[ext=mp4]/best{limit}'
+            opts['format'] = f'bestvideo{limit}[ext=mp4][vcodec^=avc1]+bestaudio[ext=m4a]/bestvideo{limit}[ext=mp4]+bestaudio[ext=m4a]/best{limit}[ext=mp4]/best{limit}'
         else:
             opts['format'] = f'bestvideo{limit}+bestaudio/best{limit}'
         opts['merge_output_format'] = task['format']
@@ -219,13 +150,15 @@ def perform_download(ident):
         opts['format'] = f'best{limit}[ext=mp4]/best{limit}'
     try:
         check_action()
-        with SafeYoutubeDL(opts) as ydl:
+        with download_session(task['url'], opts) as ydl:
             ydl.download([task['url']])
         check_action()
         complete_files = [p for p in folder.iterdir() if p.is_file() and p.suffix.lower() in ('.mp4', '.webm', '.mkv', '.mov', '.mp3', '.m4a', '.ogg', '.opus')]
         if not complete_files:
             raise RuntimeError('没有生成可下载文件，请重试。')
         output = max(complete_files, key=lambda p: p.stat().st_mtime)
+        if output.stat().st_size > 256 * 1024 * 1024:
+            raise ValueError('下载文件超过 256 MB，请选择较低画质。')
         task_update(ident, status='completed', progress=100, downloaded=output.stat().st_size,
                     total=output.stat().st_size, filename=output.name, speed=0, eta=None, error=None, completed=time.time())
     except Exception as exc:
@@ -260,6 +193,8 @@ def worker():
 
 @asynccontextmanager
 async def lifespan(app):
+    if os.environ.get('SHIYING_WORKER_MODE') == '1' and len(os.environ.get('SHIYING_WORKER_TOKEN', '')) < 32:
+        raise RuntimeError('独立下载服务需要至少 32 个字符的 SHIYING_WORKER_TOKEN')
     SHUTDOWN.clear()
     for task in tasks_all():
         if task['status'] in ('downloading', 'processing', 'pausing', 'cancelling'):
@@ -289,6 +224,12 @@ async def same_origin(request: Request, call_next):
             host_ok = address.is_private or address.is_loopback
         except ValueError:
             pass
+    worker_mode = os.environ.get('SHIYING_WORKER_MODE') == '1'
+    if worker_mode:
+        expected = os.environ.get('SHIYING_WORKER_TOKEN', '')
+        if len(expected) < 32 or not hmac.compare_digest(request.headers.get('authorization', ''), 'Bearer ' + expected):
+            return JSONResponse({'detail': '下载服务认证失败'}, 401)
+        host_ok = True
     if not host_ok:
         return JSONResponse({'detail': '请使用 localhost 或本机局域网 IP 访问'}, 403)
     origin = request.headers.get('origin')
@@ -324,7 +265,8 @@ class DownloadBody(BaseModel):
 @app.get('/api/health')
 def health():
     return {'status': 'ok', 'version': '1.0.0', 'ffmpeg': HAS_FFMPEG, 'engine': yt_dlp.version.__version__,
-            'download_dir': str(FILES), 'max_batch': 20, 'workers': 2}
+            'download_dir': '独立下载服务' if os.environ.get('SHIYING_WORKER_MODE') == '1' else str(FILES), 'max_batch': 20, 'workers': 2,
+            'mode': 'worker' if os.environ.get('SHIYING_WORKER_MODE') == '1' else 'local', 'sessions': session_status()}
 
 
 @app.post('/api/parse')
@@ -418,7 +360,7 @@ def download_file(ident: str, preview: bool = False):
     return FileResponse(file, filename=task['filename'], content_disposition_type='inline' if preview else 'attachment')
 
 
-if (ROOT / 'dist').exists():
+if (ROOT / 'dist').exists() and os.environ.get('SHIYING_WORKER_MODE') != '1':
     app.mount('/', StaticFiles(directory=ROOT / 'dist', html=True), name='frontend')
 
 

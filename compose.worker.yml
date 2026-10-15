@@ -1,0 +1,17 @@
+services:
+  downloader:
+    build:
+      context: .
+      dockerfile: Dockerfile.worker
+      args:
+        SHIYING_UID: ${SHIYING_UID:-1000}
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:8787:8787"
+    environment:
+      SHIYING_WORKER_TOKEN: ${SHIYING_WORKER_TOKEN:?Set a random token of at least 32 characters}
+    volumes:
+      - downloads:/data
+      - ./sessions:/sessions:ro
+volumes:
+  downloads:

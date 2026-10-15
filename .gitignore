@@ -12,3 +12,5 @@ dist/
 !.env.example
 *.pyc
 .DS_Store
+sessions/
+worker-data/

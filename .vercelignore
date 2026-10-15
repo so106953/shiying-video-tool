@@ -7,3 +7,9 @@ server.py
 tests
 DESIGN.md
 *.zip
+worker.py
+worker_auth.py
+Dockerfile.worker
+compose.worker.yml
+sessions
+worker-data

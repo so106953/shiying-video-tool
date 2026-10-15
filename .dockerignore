@@ -1,0 +1,7 @@
+**
+!Dockerfile.worker
+!requirements.txt
+!engine.py
+!server.py
+!worker.py
+!worker_auth.py

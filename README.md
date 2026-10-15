@@ -69,10 +69,11 @@ npm run dev
 | `engine.py` | 公共分享页解析、平台名称及中文错误处理 |
 | `public/` | 网站图标等静态资源 |
 | `vercel.json` | Vercel 部署配置 |
-| `server.py` | 早期本地服务实现，使用 SQLite / 本地文件，不是当前线上 API |
+| `server.py` / `worker.py` | 独立下载服务，使用 SQLite、本地文件和 FFmpeg |
+| `worker_auth.py` / `worker_client.py` | 本机会话隔离与 Vercel 到独立服务的连接 |
 | `DESIGN.md` | 设计说明 |
 
-`server.py` 保留作本地服务参考；其解析实现与当前 `engine.py` 并不完全一致。开发和验证线上功能请运行 `api.index:app`。
+独立下载服务可通过 Docker Compose 运行，接收服务密钥认证，按平台加载本机会话并用 FFmpeg 准备文件。Vercel 通过加密票据转发文件；浏览器不接收服务密钥或平台 Cookie。见 [后端与登录配置](docs/worker-setup.md)。配置能力不代表剩余平台已经实测通过，当前已验证名单保持不变。
 
 依赖目录、构建产物、下载视频、浏览器缓存、部署凭据与环境密钥不纳入 Git。网页源代码及部署配置完整保存在仓库中；在线地址对应已部署的网页。
 

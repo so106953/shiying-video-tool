@@ -11,9 +11,11 @@ import re
 import time
 from Cryptodome.Cipher import AES
 from urllib.parse import urljoin, urlsplit
+from typing import Literal
 
 import httpx
 import yt_dlp
+import worker_client
 from fastapi import FastAPI, HTTPException, Request
 from fastapi.responses import JSONResponse, Response
 from pydantic import BaseModel, Field
@@ -48,9 +50,12 @@ def secret():
     return value.encode()
 
 
-def sign_source(url, headers, ext):
-    allowed = {k: v for k, v in (headers or {}).items() if k.lower() in ('user-agent', 'referer', 'origin', 'accept', 'cookie')}
-    payload = json.dumps({'url': url, 'headers': allowed, 'ext': ext, 'expires': time.time() + 4 * 3600}, separators=(',', ':')).encode()
+def sign_source(url, headers, ext, worker_job=None):
+    allowed = {k: v for k, v in (headers or {}).items() if k.lower() in ('user-agent', 'referer', 'origin', 'accept', 'cookie') or (worker_job and k.lower() == 'authorization')}
+    source = {'url': url, 'headers': allowed, 'ext': ext, 'expires': time.time() + 4 * 3600}
+    if worker_job:
+        source['worker_job'] = worker_job
+    payload = json.dumps(source, separators=(',', ':')).encode()
     cipher = AES.new(hashlib.sha256(secret()).digest(), AES.MODE_GCM)
     ciphertext, tag = cipher.encrypt_and_digest(payload)
     return 'v2.' + base64.urlsafe_b64encode(cipher.nonce + tag + ciphertext).decode().rstrip('=')
@@ -71,7 +76,10 @@ def verify_source(ticket):
             payload = json.loads(base64.urlsafe_b64decode(encoded + '=' * (-len(encoded) % 4)))
         if payload['expires'] < time.time():
             raise HTTPException(410, '视频下载地址已过期，请重新解析链接。')
-        validate_url(payload['url'])
+        if payload.get('worker_job'):
+            worker_client.validate_job(payload)
+        else:
+            validate_url(payload['url'])
         return payload
     except HTTPException:
         raise
@@ -79,9 +87,13 @@ def verify_source(ticket):
         raise HTTPException(400, '无效的视频下载地址，请重新解析链接。')
 
 
-def parse_media(url):
+def parse_media(url, prefer_worker=False):
+    attempted_worker = False
     try:
         url = validate_url(url)
+        if prefer_worker or worker_client.preferred(url):
+            attempted_worker = True
+            return worker_client.resolve(url, sign_source)
         info = extract_public_douyin(url)
         if info is None:
             info = extract_public_xiaohongshu(url)
@@ -139,6 +151,8 @@ def parse_media(url):
                 break
         if not options:
             raise ValueError('这个视频没有当前可保存的格式，可能需要合并分离音视频、使用不兼容的分片编码或超过 256 MB。')
+        if worker_client.configured() and (any(option.get('delivery') == 'hls' for option in options) or (not any(option['kind'] == 'video' for option in options) and any(source.get('vcodec') not in (None, 'none') for source in sources))):
+            raise ValueError('这个视频需要独立下载服务合并音视频。')
         result['options'] = options
         result['heights'] = sorted({item['height'] for item in options if item['kind'] == 'video' and item['height']}, reverse=True)
         result['recommended_height'] = next((item['height'] for item in options if item['kind'] == 'video' and str(item.get('codec') or '').lower().startswith(('avc', 'h264'))), result['heights'][0] if result['heights'] else None)
@@ -146,11 +160,17 @@ def parse_media(url):
         result['cloud'] = True
         return result
     except Exception as exc:
+        if worker_client.configured() and not attempted_worker:
+            try:
+                return worker_client.resolve(validate_url(url), sign_source)
+            except Exception as worker_error:
+                return {'id': hashlib.sha256((url + str(time.time())).encode()).hexdigest()[:32], 'url': url, 'status': 'error', 'error': friendly_error(worker_error)}
         return {'id': hashlib.sha256((url + str(time.time())).encode()).hexdigest()[:32], 'url': url, 'status': 'error', 'error': friendly_error(exc)}
 
 
 class ParseBody(BaseModel):
     urls: list[str] = Field(min_length=1, max_length=20)
+    backend: Literal['auto', 'worker'] = 'auto'
 
 
 class ChunkBody(BaseModel):
@@ -158,12 +178,41 @@ class ChunkBody(BaseModel):
     offset: int = Field(default=0, ge=0, le=MAX_FILE)
 
 
+class PrepareBody(BaseModel):
+    ticket: str = Field(min_length=20, max_length=30000)
+    action: str = 'status'
+
+
+@app.post('/api/prepare')
+async def prepare_download(body: PrepareBody):
+    if body.action not in ('start', 'status', 'pause', 'cancel', 'delete'):
+        raise HTTPException(400, '无效的下载操作。')
+    payload = await asyncio.to_thread(verify_source, body.ticket)
+    if not payload.get('worker_job'):
+        raise HTTPException(400, '这个任务不需要独立下载服务。')
+    try:
+        return await asyncio.to_thread(worker_client.prepare, payload, body.action)
+    except ValueError as exc:
+        raise HTTPException(502, str(exc))
+
+
+@app.get('/api/backend-status')
+async def backend_status():
+    if not worker_client.configured():
+        return {'configured': False, 'connected': False, 'message': '尚未连接独立下载服务', 'sessions': []}
+    try:
+        data = await asyncio.to_thread(worker_client.health)
+        return {'configured': True, 'connected': True, 'ffmpeg': bool(data.get('ffmpeg')), 'sessions': data.get('sessions', []), 'message': '独立下载服务已连接'}
+    except ValueError as exc:
+        return {'configured': True, 'connected': False, 'message': str(exc), 'sessions': []}
+
+
 @app.get('/api/health')
 def health():
     return {'status': 'ok', 'version': '1.0.0', 'mode': 'cloud', 'ffmpeg': False,
             'engine': yt_dlp.version.__version__, 'download_dir': '当前设备 · 浏览器文件缓存',
             'max_batch': 20, 'workers': 2, 'max_file_size': MAX_FILE, 'chunk_size': CHUNK,
-            'configured': bool(os.environ.get('SHIYING_SIGNING_SECRET'))}
+            'configured': bool(os.environ.get('SHIYING_SIGNING_SECRET')), 'worker_configured': worker_client.configured()}
 
 
 PLATFORM_GROUPS = {'domestic': [{'name': '今日头条',
@@ -276,7 +325,7 @@ async def parse(body: ParseBody):
     semaphore = asyncio.Semaphore(3)
     async def one(url):
         async with semaphore:
-            return await asyncio.to_thread(parse_media, url)
+            return await asyncio.to_thread(parse_media, url, body.backend == 'worker')
     return {'results': await asyncio.gather(*(one(url) for url in body.urls))}
 
 
@@ -288,13 +337,17 @@ async def chunk(body: ChunkBody):
     async with httpx.AsyncClient(timeout=httpx.Timeout(40, connect=15), follow_redirects=False,
                                  verify=os.environ.get('SSL_CERT_FILE') or True) as client:
         for _ in range(6):
-            await asyncio.to_thread(validate_url, target)
+            if not payload.get('worker_job'):
+                await asyncio.to_thread(validate_url, target)
             request = client.build_request('GET', target, headers=headers)
             try:
                 upstream = await client.send(request, stream=True)
             except httpx.HTTPError:
                 raise HTTPException(502, '媒体服务器暂时无法连接，请暂停后重试。')
             if upstream.status_code in (301, 302, 303, 307, 308):
+                if payload.get('worker_job'):
+                    await upstream.aclose()
+                    raise HTTPException(502, '独立下载服务不允许文件跳转，请检查连接地址。')
                 location = upstream.headers.get('location')
                 await upstream.aclose()
                 if not location:

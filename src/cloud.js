@@ -34,6 +34,12 @@ async function deleteChunks(id) {
   await Promise.all(rows.map(row => chunkAction('readwrite', store => store.delete(row.key))));
 }
 const initialized = new Set();
+async function workerAction(task, action, signal) {
+  const response = await fetch('/api/prepare', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ ticket: task.ticket, action }), signal });
+  const data = await response.json();
+  if (!response.ok) throw new Error(data.detail || '独立下载服务暂时不可用。');
+  return data;
+}
 function initialize() {
   if (initialized.has(TASKS)) return;
   initialized.add(TASKS);
@@ -46,6 +52,18 @@ async function run(id) {
   update(id, { status: 'downloading', error: null });
   try {
     const initialTask = read(TASKS).find(task => task.id === id);
+    if (initialTask?.delivery === 'worker') {
+      let first = true;
+      for (;;) {
+        if (controller.signal.aborted) throw new DOMException('Aborted', 'AbortError');
+        const state = await workerAction(initialTask, first ? 'start' : 'status', controller.signal);
+        first = false;
+        if (state.status === 'completed') { update(id, { downloaded: 0, progress: 45, total: state.total || 0, phase: 'saving' }); break; }
+        if (['failed', 'cancelled'].includes(state.status)) throw new Error(state.error || '独立下载服务未能完成任务，请重试。');
+        update(id, { progress: Math.min(44, (Number(state.progress) || 0) * .44), downloaded: state.downloaded || 0, total: state.total || 0, speed: state.speed || 0, eta: state.eta, phase: 'preparing' });
+        await new Promise(resolve => setTimeout(resolve, 2000));
+      }
+    }
     if (initialTask?.delivery === 'hls') {
       const { assembleHls } = await import('./hls');
       await deleteChunks(id);
@@ -77,7 +95,7 @@ async function run(id) {
       ended = response.headers.get('X-Media-End') === '1';
       if (!blob.size && !ended) throw new Error('媒体服务器没有返回文件内容。');
       const speed = blob.size / Math.max(.1, (performance.now() - before) / 1000);
-      update(id, { downloaded: offset, total, speed, progress: total ? Math.min(99, offset / total * 100) : 0, eta: total ? Math.ceil((total - offset) / speed) : null });
+      update(id, { downloaded: offset, total, speed, progress: total ? Math.min(99, task.delivery === 'worker' ? 45 + offset / total * 54 : offset / total * 100) : 0, eta: total ? Math.ceil((total - offset) / speed) : null });
     }
     if (ended && !controller.signal.aborted) update(id, { status: 'completed', progress: 100, downloaded: offset, total: offset, speed: 0, eta: null, completed: Date.now() / 1000 });
   } catch (error) {
@@ -126,11 +144,16 @@ export async function cloudApi(path, options = {}) {
     if (!task) throw new Error('下载任务不存在。');
     if (method === 'DELETE') {
       if (controllers.has(id) || task.status === 'queued') throw new Error('请先暂停正在下载的任务。');
+      if (task.delivery === 'worker') {
+        try { await workerAction(task, 'delete'); }
+        catch { window.dispatchEvent(new CustomEvent('shiying:error', { detail: '设备任务已移除；独立服务暂时无法清理对应缓存，请在服务恢复后检查。' })); }
+      }
       await deleteChunks(id); write(TASKS, read(TASKS).filter(item => item.id !== id)); return { ok: true };
     }
     if (action === 'pause' || action === 'cancel') {
       update(id, { status: action === 'pause' ? 'paused' : 'cancelled', speed: 0, eta: null });
       controllers.get(id)?.abort();
+      if (task.delivery === 'worker') await workerAction(task, action);
     } else if (action === 'resume' || action === 'retry') {
       if (controllers.has(id)) throw new Error('正在结束上一段传输，请稍后继续。');
       update(id, { status: 'queued', error: null }); pump();
