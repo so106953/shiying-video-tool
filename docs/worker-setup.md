@@ -25,6 +25,8 @@ export SHIYING_WORKER_TOKEN="$(python -c 'import secrets; print(secrets.token_he
 docker compose -f compose.worker.yml up -d --build
 ```
 
+若以 root 管理服务器，请保持容器 UID 为 1000，并将 `sessions` 目录及会话文件归属调整为该 UID；不要把 `SHIYING_UID` 设为 0。
+
 端口默认只绑定 `127.0.0.1:8787`。使用你管理的 HTTPS 反向代理转发到该端口；后端每个接口都要求服务密钥，拒绝匿名调用。服务没有登录网页，也没有 Cookie 上传接口。
 
 也可直接运行：
