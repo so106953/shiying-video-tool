@@ -198,7 +198,15 @@
       "decoded_start_and_end": true,
       "checked_at": "2026-10-15T05:14:54.163892+00:00",
       "test_deployment": "https://shiying-video-tool-jc2lyl11n-chucks-projects-6183d2c6.vercel.app",
-      "previous_sample_url": "https://www.ixigua.com/6996881461559165471"
+      "previous_sample_url": "https://www.ixigua.com/6996881461559165471",
+      "production_recheck": {
+        "checked_at": "2026-10-15T05:17:18.835304+00:00",
+        "deployment": "https://shiying-video-tool-rho.vercel.app",
+        "complete_download": true,
+        "bytes": 239255392,
+        "sha256_matches_preview": true,
+        "decoded_start_and_end": true
+      }
     },
     {
       "group": "international",
@@ -383,7 +391,15 @@
       "decoded_start_and_end": true,
       "checked_at": "2026-10-15T05:14:54.163892+00:00",
       "test_deployment": "https://shiying-video-tool-jc2lyl11n-chucks-projects-6183d2c6.vercel.app",
-      "previous_sample_url": "https://twitter.com/starwars/status/665052190608723968"
+      "previous_sample_url": "https://twitter.com/starwars/status/665052190608723968",
+      "production_recheck": {
+        "checked_at": "2026-10-15T05:17:18.835304+00:00",
+        "deployment": "https://shiying-video-tool-rho.vercel.app",
+        "complete_download": true,
+        "bytes": 1404023,
+        "sha256_matches_preview": true,
+        "mobile_browser_save_and_playback": true
+      }
     },
     {
       "group": "international",
@@ -412,5 +428,6 @@
       "Dailymotion"
     ],
     "hls_regression": "tests/test_hls_remux.mjs 使用合成媒体验证完整分片合并，不替代 Dailymotion 线上平台验证。"
-  }
+  },
+  "production_deployment_id": "dpl_78afUHneCG1rQd9AHzJ5Z5xPv3HC"
 }
