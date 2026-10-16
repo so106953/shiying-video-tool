@@ -80,7 +80,7 @@ function App() {
   }
   const taskActions = { action, remove: task => setModal({ type: 'remove', task }), preview: async task => { try { const file = await fileUrl(task.id, true); setModal({ type: 'preview', task, file }); } catch (error) { notify(error.message, true); } } };
   async function confirmRemove() {
-    try { await api(`/tasks/${modal.task.id}`, { method: 'DELETE' }); closeModal(); await refreshTasks(); notify('任务与文件缓存已移除。'); }
+    try { await api(`/tasks/${modal.task.id}`, { method: 'DELETE' }); closeModal(); await refreshTasks(); notify('视频任务和文件缓存已删除。'); }
     catch (error) { notify(error.message, true); }
   }
   async function clearHistory() {
@@ -95,7 +95,7 @@ function App() {
     {page === 'history' ? <History history={history} useItem={useItem} clear={() => setModal({ type: 'history' })}/> : null}
     {page === 'settings' ? <SettingsPage health={health} defaults={defaults} updateDefaults={updateDefaults}/> : null}
   </Shell>{toast ? <div className={`toast ${toast.error ? 'error' : ''}`} role={toast.error ? 'alert' : 'status'}>{toast.error ? <AlertCircle size={19}/> : <Check size={19}/>}<span>{toast.message}</span><button onClick={() => setToast(null)} aria-label="关闭提示"><X size={17}/></button></div> : null}
-  {modal ? <Modal title={modal.type === 'platforms' ? '国内外平台验证' : modal.type === 'help' ? '使用帮助' : modal.type === 'preview' ? '播放预览' : modal.type === 'history' ? '清空解析记录' : '移除下载任务'} close={closeModal}>{modal.type === 'platforms' ? <PlatformSupport/> : modal.type === 'help' ? <HelpContent cloud={health?.mode === 'cloud'}/> : modal.type === 'preview' ? <div className="preview-content"><p>{modal.task.title}</p>{modal.task.kind === 'audio' ? <audio src={modal.file?.url} controls autoPlay/> : <video src={modal.file?.url} controls autoPlay/>}<Button variant="primary" onClick={() => saveFile(modal.task.id)}><Download size={18}/>保存到设备</Button></div> : <><p className="confirm-copy">{modal.type === 'history' ? '清空所有解析记录？下载任务和已保存的文件不受影响。' : `移除“${modal.task.title}”及文件缓存？已经保存到设备的文件不受影响。`}</p><div className="modal-actions"><Button onClick={closeModal}>取消</Button><Button variant="primary" onClick={modal.type === 'history' ? clearHistory : confirmRemove}>确认{modal.type === 'history' ? '清空' : '移除'}</Button></div></>}</Modal> : null}</>;
+  {modal ? <Modal title={modal.type === 'platforms' ? '国内外平台验证' : modal.type === 'help' ? '使用帮助' : modal.type === 'preview' ? '播放预览' : modal.type === 'history' ? '清空解析记录' : '删除视频'} close={closeModal}>{modal.type === 'platforms' ? <PlatformSupport/> : modal.type === 'help' ? <HelpContent cloud={health?.mode === 'cloud'}/> : modal.type === 'preview' ? <div className="preview-content"><p>{modal.task.title}</p>{modal.task.kind === 'audio' ? <audio src={modal.file?.url} controls autoPlay/> : <video src={modal.file?.url} controls autoPlay/>}<Button variant="primary" onClick={() => saveFile(modal.task.id)}><Download size={18}/>保存到设备</Button></div> : <><p className="confirm-copy">{modal.type === 'history' ? '清空所有解析记录？下载任务和已保存的文件不受影响。' : `删除“${modal.task.title}”的下载任务和文件缓存？已经保存到设备的文件不受影响。`}</p><div className="modal-actions"><Button onClick={closeModal}>取消</Button><Button variant="primary" onClick={modal.type === 'history' ? clearHistory : confirmRemove}>确认{modal.type === 'history' ? '清空' : '删除'}</Button></div></>}</Modal> : null}</>;
 }
 
 createRoot(document.getElementById('root')).render(<App/>);
