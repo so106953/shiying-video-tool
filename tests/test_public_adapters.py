@@ -40,10 +40,12 @@ class PublicAdapterTests(unittest.TestCase):
 
     def test_pipixia_does_not_return_an_unrelated_comment_video(self):
         item = lambda ident: {'comment_info': {'item': {'item_id_str': ident, 'content': ident,
-               'video': {'video_high': {'url_list': [{'url': MEDIA}]}}}}}
+               'video': {'video_height': 720, 'video_high': {'height': 540, 'url_list': [{'url': MEDIA}]}}}}}
         payload = {'data': {'cell_comments': [item('999'), item('123')]}}
         with patch.object(p, 'fetch_page', return_value=('https://api.pipix.com/', json.dumps(payload))):
-            self.assertEqual(p.pipixia('https://h5.pipix.com/ppx/item/123')['title'], '123')
+            info = p.pipixia('https://h5.pipix.com/ppx/item/123')
+            self.assertEqual(info['title'], '123')
+            self.assertEqual(info['formats'][0]['height'], 540)
 
     def test_tangdou_preserves_required_referer_and_rejects_paid_content(self):
         data = {'title': 'sample', 'video_url': MEDIA, 'duration': '42'}
@@ -60,6 +62,23 @@ class PublicAdapterTests(unittest.TestCase):
         html = '<script type="application/json">' + json.dumps(data) + '</script>'
         with patch.object(p, 'fetch_page', return_value=('https://www.threads.com/@user/post/requested', html)):
             with self.assertRaisesRegex(ValueError, '没有返回公开'): p.structured_page('https://www.threads.com/@user/post/requested', 'Threads')
+
+    def test_wechat_javascript_metadata_is_read_without_execution(self):
+        block = r"mp_video_trans_info: [{width: '640' * 1, height: '360' * 1, url: 'https://mpvideo.qpic.cn/sample.mp4?x=1\x26amp;y=2'}]"
+        with patch.object(p, 'fetch_page', return_value=('https://mp.weixin.qq.com/s/test', block)), \
+                patch('engine.validate_url', side_effect=lambda url: url):
+            info = p.structured_page('https://mp.weixin.qq.com/s/test', 'WechatArticle')
+        self.assertEqual(info['formats'][0]['url'], 'https://mpvideo.qpic.cn/sample.mp4?x=1&y=2')
+        self.assertEqual(info['formats'][0]['height'], 360)
+        with patch.object(p, 'fetch_page', return_value=('https://mp.weixin.qq.com/s/test', block + block)), \
+                patch('engine.validate_url', side_effect=lambda url: url), self.assertRaisesRegex(ValueError, '多个视频'):
+            p.structured_page('https://mp.weixin.qq.com/s/test', 'WechatArticle')
+
+    def test_page_reader_rejects_oversized_metadata(self):
+        real_client = httpx.Client
+        with patch.object(p.httpx, 'Client', side_effect=lambda **kw: real_client(transport=httpx.MockTransport(lambda req: httpx.Response(200, content=b'x' * 30)))), \
+                patch.object(p, 'MAX_PAGE', 10), self.assertRaisesRegex(ValueError, '页面过大'):
+            p.fetch_page('https://8.8.8.8/share')
 
     def test_media_urls_and_redirects_cannot_reach_private_network(self):
         with self.assertRaises(ValueError): p.media_info('Kuaishou', '123', 'sample', ['http://127.0.0.1/private'])

@@ -185,7 +185,7 @@ def pipixia(url):
     comments = (data.get('data') or {}).get('cell_comments') or []
     item = next((c.get('comment_info', {}).get('item', {}) for c in comments if str(c.get('comment_info', {}).get('item', {}).get('item_id_str') or c.get('comment_info', {}).get('item', {}).get('item_id')) == ident), {})
     video = item.get('video') or {}
-    sources = [{'url': first_url(video.get(name)), 'width': video.get('video_width'), 'height': video.get('video_height')} for name in ('video_high', 'video_download', 'video_fallback')]
+    sources = [{'url': first_url(video.get(name)), 'width': (video.get(name) or {}).get('width') or video.get('video_width'), 'height': (video.get(name) or {}).get('height') or video.get('video_height')} for name in ('video_high', 'video_download', 'video_fallback')]
     return media_info('Pipixia', ident, item.get('content'), sources, uploader=item.get('author', {}).get('name'),
                       thumbnail=first_url(item.get('cover')), duration=video.get('duration'), referer='https://h5.pipix.com/')
 
@@ -196,7 +196,11 @@ def weishi(url):
         match = re.search(r'/feed/([a-zA-Z0-9]+)', urlsplit(url).path)
         ident = match[1] if match else None
     if not ident or not re.fullmatch('[a-zA-Z0-9]{5,64}', ident): raise ValueError('请使用微视单个视频的分享链接。')
-    _, text = fetch_page('https://h5.weishi.qq.com/webapp/json/weishi/WSH5GetPlayPage?feedid=' + ident)
+    try:
+        _, text = fetch_page('https://h5.weishi.qq.com/webapp/json/weishi/WSH5GetPlayPage?feedid=' + ident)
+    except httpx.HTTPStatusError as exc:
+        if exc.response.status_code == 404: raise ValueError('微视公开接口当前不可用，尚未完成下载适配。') from exc
+        raise
     data = json.loads(text); feeds = (data.get('data') or {}).get('feeds') or []
     video = next((v for v in feeds if str(v.get('id') or v.get('feedid')) == ident), {})
     return media_info('Weishi', ident, video.get('feed_desc_withat'), [video.get('video_url')],
@@ -260,6 +264,22 @@ def structured_page(url, key):
         records = state_value(text, r'["\']?mp_video_trans_info["\']?\s*[:=]\s*')
         for node in walk(records):
             if node.get('url') and node.get('width') and node.get('height'): sources.append(node)
+        if not records:
+            # WeChat also emits JavaScript object literals with quoted numbers multiplied by 1.
+            # Read only the known video metadata fields; never evaluate JavaScript.
+            videos = []
+            for block in re.finditer(r'\bmp_video_trans_info\s*:\s*\[([^\]]{0,24000})\]', text, re.S):
+                variants = []
+                for match in re.finditer(r'\{([^{}]{0,6000})\}', block[1], re.S):
+                    fields = dict((m[1], m[3]) for m in re.finditer(r'\b(url|width|height|filesize|duration_ms)\s*:\s*([\"\'])(.*?)\2', match[1], re.S))
+                    raw = fields.get('url', '')
+                    raw = re.sub(r'\\x([0-9a-fA-F]{2})', lambda m: chr(int(m[1], 16)), raw)
+                    raw = html.unescape(raw)
+                    if urlsplit(raw).hostname != 'mpvideo.qpic.cn': continue
+                    variants.append({'url': raw, **{k: int(fields[k]) for k in ('width', 'height') if fields.get(k, '').isdigit()}})
+                if variants: videos.append(variants)
+            if len(videos) > 1: raise ValueError('这篇公众号文章包含多个视频，暂只支持单视频文章或单条视频消息。')
+            if videos: sources.extend(videos[0])
     if key == 'Dongchedi':
         state = state_value(text, r'<script[^>]+id=["\']__NEXT_DATA__["\'][^>]*>\s*')
         match = re.search(r'/(?:video|article)/(\d+)', urlsplit(final).path)

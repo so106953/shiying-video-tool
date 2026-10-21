@@ -26,6 +26,7 @@ CASES = [
  ('domestic','糖豆广场舞','https://m.tangdou.com/play/20000013015012'),
  ('domestic','网易视频','https://www.163.com/v/video/VK8RJTOC2.html'),
  ('domestic','知乎','https://www.zhihu.com/zvideo/1342930761977176064'),
+ ('domestic','AcFun','https://www.acfun.cn/v/ac35457073'),
  ('domestic','央视 CCTV','https://sports.cntv.cn/2016/02/12/ARTIaBRxv4rTT1yWf1frW2wi160212.shtml'),
  ('international','Pinterest','https://www.pinterest.com/pin/664281013778109217/'),
 ]
@@ -43,6 +44,7 @@ def verify(case):
    if not options:row['error']='没有完整视频格式';return row
    option=next((o for o in options if str(o.get('codec')or'').startswith(('h264','avc'))),options[0])
    if option.get('delivery')=='hls':option=min((o for o in options if o.get('delivery')=='hls'),key=lambda o:o.get('height')or 0)
+   if option.get('delivery')=='worker':option=min(options,key=lambda o:o.get('height')or 0)
    row.update(format=option['format'],height=option.get('height'),codec=option.get('codec'))
    if option.get('delivery')=='worker':
     import time

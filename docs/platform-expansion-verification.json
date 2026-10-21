@@ -1,0 +1,399 @@
+{
+  "checked_at": "2026-10-21T09:22:11.131148+00:00",
+  "scope": "本次真实线上解析、完整下载和首尾解码；保留好看视频首次失败及修复后通过两次记录。",
+  "attempts": [
+    {
+      "group": "domestic",
+      "name": "皮皮虾",
+      "url": "https://h5.pipix.com/ppx/item/7464040836074838284",
+      "status": "passed",
+      "stage": "complete",
+      "title": "盘点那些猝不及防的爆笑瞬间",
+      "format": "mp4",
+      "height": 720,
+      "codec": null,
+      "bytes": 14018670,
+      "sha256": "a037f95919ec831ad6aba4694b35d0c9b4006770088fd921e1d192ab91acc76d",
+      "media": {
+        "programs": [],
+        "stream_groups": [],
+        "streams": [
+          {
+            "codec_name": "h264",
+            "codec_type": "video",
+            "width": 720,
+            "height": 540
+          },
+          {
+            "codec_name": "aac",
+            "codec_type": "audio"
+          }
+        ],
+        "format": {
+          "duration": "107.300771"
+        }
+      },
+      "decoded_start_and_end": true,
+      "checked_at": "2026-10-21T09:08:25.449042+00:00",
+      "deployment": "https://shiying-video-tool-rho.vercel.app"
+    },
+    {
+      "group": "domestic",
+      "name": "快手",
+      "url": "https://v.kuaishou.com/nYOjD3",
+      "status": "passed",
+      "stage": "complete",
+      "title": "反差感就是最好的",
+      "format": "mp4",
+      "height": 1280,
+      "codec": "h264",
+      "bytes": 673101,
+      "sha256": "7c68e2c72cdd82c74e39fbddffcc70175d70e2f3829c77856f77e02df8f93f63",
+      "media": {
+        "programs": [],
+        "stream_groups": [],
+        "streams": [
+          {
+            "codec_name": "h264",
+            "codec_type": "video",
+            "width": 720,
+            "height": 1280
+          },
+          {
+            "codec_name": "aac",
+            "codec_type": "audio"
+          }
+        ],
+        "format": {
+          "duration": "15.673991"
+        }
+      },
+      "decoded_start_and_end": true,
+      "checked_at": "2026-10-21T09:08:26.000425+00:00",
+      "deployment": "https://shiying-video-tool-rho.vercel.app"
+    },
+    {
+      "group": "domestic",
+      "name": "糖豆广场舞",
+      "url": "https://m.tangdou.com/play/20000013015012",
+      "status": "passed",
+      "stage": "complete",
+      "title": "学舞蹈！上糖豆！开心快乐嗨嗨",
+      "format": "mp4",
+      "height": null,
+      "codec": null,
+      "bytes": 6177098,
+      "sha256": "4605194adb465f94b3c72f8ab131a3b991b3cccba01bda4e4d0cdb6efb43182c",
+      "media": {
+        "programs": [],
+        "stream_groups": [],
+        "streams": [
+          {
+            "codec_name": "h264",
+            "codec_type": "video",
+            "width": 960,
+            "height": 540
+          },
+          {
+            "codec_name": "aac",
+            "codec_type": "audio"
+          }
+        ],
+        "format": {
+          "duration": "42.978000"
+        }
+      },
+      "decoded_start_and_end": true,
+      "checked_at": "2026-10-21T09:08:37.239422+00:00",
+      "deployment": "https://shiying-video-tool-rho.vercel.app"
+    },
+    {
+      "group": "domestic",
+      "name": "好看视频",
+      "url": "https://haokan.baidu.com/v?vid=3769263432858270366",
+      "status": "failed",
+      "stage": "download",
+      "title": "吃播流量密码试吃，到底是踩雷还是真香？",
+      "format": "mp4",
+      "height": 1080,
+      "codec": null,
+      "error": "JSONDecodeError",
+      "checked_at": "2026-10-21T09:09:46.223314+00:00",
+      "deployment": "https://shiying-video-tool-rho.vercel.app"
+    },
+    {
+      "group": "domestic",
+      "name": "新片场",
+      "url": "https://www.xinpianchang.com/a11766551",
+      "status": "failed",
+      "stage": "parse",
+      "error": "平台拒绝了请求（403），请稍后重试或重新解析链接。",
+      "checked_at": "2026-10-21T09:08:38.788097+00:00",
+      "deployment": "https://shiying-video-tool-rho.vercel.app"
+    },
+    {
+      "group": "domestic",
+      "name": "搜狐视频",
+      "url": "https://tv.sohu.com/20130724/n382479172.shtml#super",
+      "status": "failed",
+      "stage": "parse",
+      "error": "平台没有返回可用的视频信息。请确认链接可以公开播放，并重新复制完整分享链接后重试。",
+      "checked_at": "2026-10-21T09:08:38.858675+00:00",
+      "deployment": "https://shiying-video-tool-rho.vercel.app"
+    },
+    {
+      "group": "domestic",
+      "name": "知乎",
+      "url": "https://www.zhihu.com/zvideo/1342930761977176064",
+      "status": "passed",
+      "stage": "complete",
+      "title": "写春联也太难了吧！",
+      "format": "mp4",
+      "height": 1080,
+      "codec": null,
+      "bytes": 17274307,
+      "sha256": "3770f61a3b2020b9c7c6885df17a8435b2c74f0671c33ec0587414006143e280",
+      "media": {
+        "programs": [],
+        "stream_groups": [],
+        "streams": [
+          {
+            "codec_name": "h264",
+            "codec_type": "video",
+            "width": 1920,
+            "height": 1080
+          },
+          {
+            "codec_name": "aac",
+            "codec_type": "audio"
+          }
+        ],
+        "format": {
+          "duration": "146.320000"
+        }
+      },
+      "decoded_start_and_end": true,
+      "checked_at": "2026-10-21T09:08:42.420765+00:00",
+      "deployment": "https://shiying-video-tool-rho.vercel.app"
+    },
+    {
+      "group": "domestic",
+      "name": "梨视频",
+      "url": "https://www.pearvideo.com/video_1076290",
+      "status": "failed",
+      "stage": "parse",
+      "error": "平台没有返回可用的视频信息。请确认链接可以公开播放，并重新复制完整分享链接后重试。",
+      "checked_at": "2026-10-21T09:08:44.019831+00:00",
+      "deployment": "https://shiying-video-tool-rho.vercel.app"
+    },
+    {
+      "group": "domestic",
+      "name": "美拍",
+      "url": "https://www.meipai.com/media/531697625",
+      "status": "failed",
+      "stage": "parse",
+      "error": "没有获取到可下载的视频。请确认这是视频作品，并重新复制完整分享链接；图文作品、失效链接和访问限制也可能导致此问题。",
+      "checked_at": "2026-10-21T09:08:48.309055+00:00",
+      "deployment": "https://shiying-video-tool-rho.vercel.app"
+    },
+    {
+      "group": "domestic",
+      "name": "斗鱼回放",
+      "url": "https://v.douyu.com/show/mPyq7oVNe5Yv1gLY",
+      "status": "failed",
+      "stage": "parse",
+      "error": "平台没有返回可用的视频信息。请确认链接可以公开播放，并重新复制完整分享链接后重试。",
+      "checked_at": "2026-10-21T09:08:53.425551+00:00",
+      "deployment": "https://shiying-video-tool-rho.vercel.app"
+    },
+    {
+      "group": "domestic",
+      "name": "央视 CCTV",
+      "url": "https://sports.cntv.cn/2016/02/12/ARTIaBRxv4rTT1yWf1frW2wi160212.shtml",
+      "status": "passed",
+      "stage": "complete",
+      "title": "[NBA]二少联手砍下46分 雷霆主场击败鹈鹕（快讯）",
+      "format": "mp4",
+      "height": 270,
+      "codec": null,
+      "bytes": 6070829,
+      "sha256": "2b24e1ae776005921aa1697ad946cc8538f3a7d2255601864dd9ab2ec4d42f0f",
+      "media": {
+        "programs": [],
+        "stream_groups": [],
+        "streams": [
+          {
+            "codec_name": "h264",
+            "codec_type": "video",
+            "width": 480,
+            "height": 270
+          },
+          {
+            "codec_name": "aac",
+            "codec_type": "audio"
+          }
+        ],
+        "format": {
+          "duration": "98.400000"
+        }
+      },
+      "decoded_start_and_end": true,
+      "checked_at": "2026-10-21T09:08:58.485812+00:00",
+      "deployment": "https://shiying-video-tool-rho.vercel.app"
+    },
+    {
+      "group": "domestic",
+      "name": "虎牙回放",
+      "url": "https://www.huya.com/video/play/1002412640.html",
+      "status": "failed",
+      "stage": "download",
+      "title": "8月3日",
+      "format": "mp4",
+      "height": 1080,
+      "codec": null,
+      "error": "视频不存在、已设为私密或在当前地区不可用。",
+      "checked_at": "2026-10-21T09:09:03.866743+00:00",
+      "deployment": "https://shiying-video-tool-rho.vercel.app"
+    },
+    {
+      "group": "domestic",
+      "name": "网易视频",
+      "url": "https://www.163.com/v/video/VK8RJTOC2.html",
+      "status": "passed",
+      "stage": "complete",
+      "title": "高新华：奇瑞致力于成为AI驱动的智能科技公司",
+      "format": "mp4",
+      "height": null,
+      "codec": null,
+      "bytes": 9969179,
+      "sha256": "107216f0fce11f0313c309d941309a5beac9e091ff20fb796c8968d3dda8cd48",
+      "media": {
+        "programs": [],
+        "stream_groups": [],
+        "streams": [
+          {
+            "codec_name": "h264",
+            "codec_type": "video",
+            "width": 1920,
+            "height": 1080
+          },
+          {
+            "codec_name": "aac",
+            "codec_type": "audio"
+          }
+        ],
+        "format": {
+          "duration": "111.846000"
+        }
+      },
+      "decoded_start_and_end": true,
+      "checked_at": "2026-10-21T09:09:48.666113+00:00",
+      "deployment": "https://shiying-video-tool-rho.vercel.app"
+    },
+    {
+      "group": "domestic",
+      "name": "哔哩哔哩",
+      "url": "https://www.bilibili.com/video/BV13x41117TL",
+      "status": "passed",
+      "stage": "complete",
+      "title": "阿滴英文｜英文歌分享#6 \"Closer",
+      "format": "mp4",
+      "height": 1080,
+      "codec": null,
+      "bytes": 116649625,
+      "sha256": "3dbed364eb33894f5ad2363e8e21b1a07873a31c74939e481577b41c4531b914",
+      "media": {
+        "programs": [],
+        "stream_groups": [],
+        "streams": [
+          {
+            "codec_name": "h264",
+            "codec_type": "video",
+            "width": 1920,
+            "height": 1080
+          },
+          {
+            "codec_name": "aac",
+            "codec_type": "audio"
+          }
+        ],
+        "format": {
+          "duration": "554.117619"
+        }
+      },
+      "decoded_start_and_end": true,
+      "checked_at": "2026-10-21T09:12:25.911264+00:00",
+      "deployment": "https://shiying-video-tool-rho.vercel.app"
+    },
+    {
+      "group": "domestic",
+      "name": "好看视频",
+      "url": "https://haokan.baidu.com/v?vid=3769263432858270366",
+      "status": "passed",
+      "stage": "complete",
+      "title": "吃播流量密码试吃，到底是踩雷还是真香？",
+      "format": "mp4",
+      "height": 960,
+      "codec": null,
+      "bytes": 40761525,
+      "sha256": "810f8922e54070147831513fb10b291f64f7dd9bc87dcd7275671884b05d8509",
+      "media": {
+        "programs": [],
+        "stream_groups": [],
+        "streams": [
+          {
+            "codec_name": "h264",
+            "codec_type": "video",
+            "width": 540,
+            "height": 960
+          },
+          {
+            "codec_name": "aac",
+            "codec_type": "audio"
+          }
+        ],
+        "format": {
+          "duration": "237.400998"
+        }
+      },
+      "decoded_start_and_end": true,
+      "checked_at": "2026-10-21T09:14:49.589365+00:00",
+      "deployment": "https://shiying-video-tool-rho.vercel.app"
+    },
+    {
+      "group": "domestic",
+      "name": "AcFun",
+      "url": "https://www.acfun.cn/v/ac35457073",
+      "status": "passed",
+      "stage": "complete",
+      "title": "1 8 岁 现 状",
+      "format": "mp4",
+      "height": 960,
+      "codec": null,
+      "bytes": 22046746,
+      "sha256": "f22dc9823a6f9e27b5f5838d2f0b55d9419d9aa16e2a5406499de5d290f1b666",
+      "media": {
+        "programs": [],
+        "stream_groups": [],
+        "streams": [
+          {
+            "codec_name": "h264",
+            "codec_type": "video",
+            "width": 540,
+            "height": 960
+          },
+          {
+            "codec_name": "aac",
+            "codec_type": "audio"
+          }
+        ],
+        "format": {
+          "duration": "174.371667"
+        }
+      },
+      "decoded_start_and_end": true,
+      "checked_at": "2026-10-21T09:21:30.836381+00:00",
+      "deployment": "https://shiying-video-tool-rho.vercel.app"
+    }
+  ]
+}

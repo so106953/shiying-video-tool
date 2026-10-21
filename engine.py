@@ -331,7 +331,7 @@ def extraction_catalog(query=''):
         '快手': ('Kuaishou',), '好看视频': ('Haokan',), '微视': ('Weishi',),
         '皮皮虾': ('Pipixia',), '网易视频163': ('NetEaseVideo',), '糖豆广场舞': ('Tangdou',),
         'Threads': ('Threads',), '懂车帝': ('Dongchedi',), '微信公众号': ('WechatArticle',),
-        'QQ短视频 / 腾讯视频': ('VQQVideo',), '秒懂百科': (), '音悦台': (), 'PP视频': (), '微博': ('Weibo',), 'TikTok': ('TikTok',),
+        '腾讯视频': ('VQQVideo',), 'QQ短视频': (), '秒懂百科': (), '音悦台': (), 'PP视频': (), '微博': ('Weibo',), 'TikTok': ('TikTok',),
         'Instagram': ('Instagram',), 'X / Twitter': ('Twitter',), 'Facebook': ('Facebook',),
         'Pinterest': ('Pinterest',), 'Weverse': ('Weverse',), 'Vimeo': ('Vimeo',),
         'Dailymotion': ('Dailymotion',), 'Reddit': ('Reddit',), 'Streamable': ('Streamable',),
