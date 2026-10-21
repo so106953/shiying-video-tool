@@ -49,7 +49,7 @@ def job_source(ident):
 def health():
  data=request('GET','/api/health')
  if not isinstance(data,dict)or data.get('mode')!='worker':raise ValueError('配置地址不是独立下载服务，请勿填写拾影网页地址。')
- return {'ffmpeg':bool(data.get('ffmpeg')),'sessions':[{'platform':str(item.get('platform','')),'configured':bool(item.get('configured')),'verified':False}for item in data.get('sessions',[])if isinstance(item,dict)]}
+ return {'ffmpeg':bool(data.get('ffmpeg')),'public_adapters':[name for name in data.get('public_adapters',[]) if isinstance(name,str) and re.fullmatch('[A-Za-z]{1,32}',name)],'sessions':[{'platform':str(item.get('platform','')),'configured':bool(item.get('configured')),'verified':False}for item in data.get('sessions',[])if isinstance(item,dict)]}
 
 def validate_job(payload):
  ident=payload.get('worker_job')

@@ -5,7 +5,7 @@ COPY requirements.txt ./
 RUN --mount=type=secret,id=build_ca \
     if [ -f /run/secrets/build_ca ]; then PIP_CERT=/run/secrets/build_ca pip install --no-cache-dir -r requirements.txt; \
     else pip install --no-cache-dir -r requirements.txt; fi
-COPY engine.py worker_auth.py server.py worker.py ./
+COPY engine.py platform_adapters.py worker_auth.py server.py worker.py ./
 ARG SHIYING_UID=1000
 RUN useradd --create-home --uid ${SHIYING_UID} shiying && mkdir /data && chown shiying:shiying /data && chmod 644 /app/*.py
 USER shiying

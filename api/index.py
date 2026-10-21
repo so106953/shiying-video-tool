@@ -19,7 +19,7 @@ import worker_client
 from fastapi import FastAPI, HTTPException, Request
 from fastapi.responses import JSONResponse, Response
 from pydantic import BaseModel, Field
-from engine import extraction_catalog, SafeYoutubeDL, validate_url, metadata, friendly_error, ydl_options, extract_public_douyin, extract_public_xiaohongshu, extract_public_ixigua, extract_public_twitter
+from engine import extract_public_extra, extraction_catalog, SafeYoutubeDL, validate_url, metadata, friendly_error, ydl_options, extract_public_douyin, extract_public_xiaohongshu, extract_public_ixigua, extract_public_twitter
 
 app = FastAPI(docs_url=None, redoc_url=None)
 CHUNK = 3 * 1024 * 1024
@@ -94,7 +94,9 @@ def parse_media(url, prefer_worker=False, include_conversions=False):
         if prefer_worker or include_conversions or worker_client.preferred(url):
             attempted_worker = True
             return worker_client.resolve(url, sign_source, include_conversions=include_conversions)
-        info = extract_public_douyin(url)
+        info = extract_public_extra(url)
+        if info is None:
+            info = extract_public_douyin(url)
         if info is None:
             info = extract_public_xiaohongshu(url)
         if info is None:
@@ -203,7 +205,7 @@ async def backend_status():
         return {'configured': False, 'connected': False, 'message': '尚未连接独立下载服务', 'sessions': []}
     try:
         data = await asyncio.to_thread(worker_client.health)
-        return {'configured': True, 'connected': True, 'ffmpeg': bool(data.get('ffmpeg')), 'sessions': data.get('sessions', []), 'message': '独立下载服务已连接'}
+        return {'configured': True, 'connected': True, 'ffmpeg': bool(data.get('ffmpeg')), 'sessions': data.get('sessions', []), 'public_adapters': data.get('public_adapters', []), 'message': '独立下载服务已连接'}
     except ValueError as exc:
         return {'configured': True, 'connected': False, 'message': str(exc), 'sessions': []}
 

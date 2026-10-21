@@ -11,7 +11,8 @@ class FreeCapabilityTests(unittest.TestCase):
         self.assertFalse(data['items'][0]['verified'])
         self.assertIn('Zhihu', data['items'][0]['extractors'])
         self.assertGreater(data['extractor_count'], 100)
-        self.assertFalse(extraction_catalog('快手')['items'][0]['available'])
+        self.assertTrue(extraction_catalog('快手')['items'][0]['available'])
+        self.assertFalse(extraction_catalog('快手')['items'][0]['verified'])
         self.assertEqual(extraction_catalog('nonexistent-platform-abc')['items'], [])
 
     def test_expanded_formats_are_real_paused_jobs_and_keep_legacy_defaults(self):

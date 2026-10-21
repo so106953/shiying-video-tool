@@ -23,7 +23,7 @@ from fastapi import FastAPI, HTTPException, Request
 from fastapi.responses import FileResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, Field
-from engine import validate_url, metadata, friendly_error, ydl_options
+from engine import extract_public_extra, validate_url, metadata, friendly_error, ydl_options
 from worker_auth import download_session, session_status
 
 ROOT = Path(__file__).resolve().parent
@@ -104,8 +104,10 @@ def cache_cleaner():
 
 def parse_one(url):
     validate_url(url)
-    with download_session(url) as ydl:
-        info = ydl.extract_info(url, download=False)
+    info = extract_public_extra(url)
+    if info is None:
+        with download_session(url) as ydl:
+            info = ydl.extract_info(url, download=False)
     if not info or info.get('_type') in ('playlist', 'multi_video'):
         raise ValueError('请使用单个视频的详情页链接，暂不支持整份播放列表。')
     if info.get('has_drm'):
@@ -174,8 +176,12 @@ def perform_download(ident):
         opts['format'] = f'best{limit}[ext=mp4]/best{limit}'
     try:
         check_action()
+        info = extract_public_extra(task['url'])
         with download_session(task['url'], opts) as ydl:
-            ydl.download([task['url']])
+            if info is None:
+                ydl.download([task['url']])
+            else:
+                ydl.process_ie_result(info, download=True)
         check_action()
         complete_files = [p for p in folder.iterdir() if p.is_file() and p.suffix.lower() in ('.mp4', '.webm', '.mkv', '.mov', '.mp3', '.m4a', '.ogg', '.opus')]
         if not complete_files:
@@ -293,6 +299,7 @@ class DownloadBody(BaseModel):
 def health():
     return {'status': 'ok', 'version': '1.0.0', 'ffmpeg': HAS_FFMPEG, 'engine': yt_dlp.version.__version__,
             'download_dir': '独立下载服务' if os.environ.get('SHIYING_WORKER_MODE') == '1' else str(FILES), 'max_batch': 20, 'workers': 2,
+            'public_adapters': ['Kuaishou', 'Haokan', 'Weishi', 'Pipixia', 'NetEaseVideo', 'Tangdou', 'Threads', 'Dongchedi', 'WechatArticle'],
             'mode': 'worker' if os.environ.get('SHIYING_WORKER_MODE') == '1' else 'local', 'sessions': session_status()}
 
 

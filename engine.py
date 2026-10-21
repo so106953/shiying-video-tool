@@ -126,7 +126,7 @@ def metadata(info, url):
     heights = sorted({int(f['height']) for f in formats if f.get('height') and f.get('vcodec') != 'none'}, reverse=True)
     sizes = [f.get('filesize') or f.get('filesize_approx') for f in formats if f.get('vcodec') != 'none']
     platform = info.get('extractor_key') or info.get('extractor') or '媒体直链'
-    platform = {'BiliBili': '哔哩哔哩', 'Youtube': 'YouTube', 'Douyin': '抖音', 'TikTok': 'TikTok', 'Generic': '媒体直链', 'XiaoHongShu': '小红书', 'Instagram': 'Instagram', 'Twitter': 'X / Twitter', 'Vimeo': 'Vimeo', 'Toutiao': '今日头条', 'Ixigua': '西瓜视频'}.get(platform, platform)
+    platform = {'BiliBili': '哔哩哔哩', 'Youtube': 'YouTube', 'Douyin': '抖音', 'TikTok': 'TikTok', 'Generic': '媒体直链', 'XiaoHongShu': '小红书', 'Instagram': 'Instagram', 'Twitter': 'X / Twitter', 'Vimeo': 'Vimeo', 'Toutiao': '今日头条', 'Ixigua': '西瓜视频', 'Kuaishou': '快手', 'Haokan': '好看视频', 'Pipixia': '皮皮虾', 'Weishi': '微视', 'NetEaseVideo': '网易视频', 'Tangdou': '糖豆广场舞', 'WechatArticle': '微信公众号', 'Dongchedi': '懂车帝'}.get(platform, platform)
     direct = info.get('direct') or (str(info.get('extractor_key', '')).lower() == 'generic' and urlsplit(url).path.lower().endswith(('.mp4', '.webm', '.mov', '.mp3', '.m4a')))
     return {'id': uuid.uuid4().hex, 'url': url, 'title': info.get('title') or Path(urlsplit(url).path).name or '视频',
             'platform': platform, 'uploader': info.get('uploader') or info.get('channel') or urlsplit(url).hostname,
@@ -328,7 +328,10 @@ def extraction_catalog(query=''):
     aliases = {
         'YouTube': ('Youtube',), '哔哩哔哩': ('BiliBili',), '抖音': ('Douyin',),
         '小红书': ('XiaoHongShu',), '今日头条': ('Toutiao',), '西瓜视频': ('Ixigua',),
-        '快手': ('Kuaishou',), '微博': ('Weibo',), 'TikTok': ('TikTok',),
+        '快手': ('Kuaishou',), '好看视频': ('Haokan',), '微视': ('Weishi',),
+        '皮皮虾': ('Pipixia',), '网易视频163': ('NetEaseVideo',), '糖豆广场舞': ('Tangdou',),
+        'Threads': ('Threads',), '懂车帝': ('Dongchedi',), '微信公众号': ('WechatArticle',),
+        'QQ短视频 / 腾讯视频': ('VQQVideo',), '秒懂百科': (), '音悦台': (), 'PP视频': (), '微博': ('Weibo',), 'TikTok': ('TikTok',),
         'Instagram': ('Instagram',), 'X / Twitter': ('Twitter',), 'Facebook': ('Facebook',),
         'Pinterest': ('Pinterest',), 'Weverse': ('Weverse',), 'Vimeo': ('Vimeo',),
         'Dailymotion': ('Dailymotion',), 'Reddit': ('Reddit',), 'Streamable': ('Streamable',),
@@ -337,15 +340,17 @@ def extraction_catalog(query=''):
         '斗鱼回放': ('DouyuShow',), '梨视频': ('PearVideo',), '美拍': ('Meipai',),
     }
     registry = _extractor_catalog()
+    from platform_adapters import ADAPTERS
+    custom = set(ADAPTERS)
     query = query.strip().casefold()
     items = []
     used = set()
     for name, keys in aliases.items():
         if query and query not in name.casefold() and not any(query in key.casefold() for key in keys):
             continue
-        available = any(key in registry for key in keys)
+        available = any(key in registry or key in custom for key in keys)
         items.append({'name': name, 'extractors': list(keys), 'available': available,
-                      'status': '引擎已适配 · 未逐项实测' if available else '暂未适配', 'verified': False})
+                      'status': '自有适配 · 以实测为准' if any(key in custom for key in keys) else '引擎已适配 · 未逐项实测' if available else '暂未适配', 'verified': False})
         used.update(keys)
     if query:
         items.extend({'name': key, 'extractors': [key], 'available': True,
@@ -353,3 +358,8 @@ def extraction_catalog(query=''):
                      for key in registry if query in key.casefold() and key not in used and key != 'Generic')
     return {'items': items[:40], 'matched': len(items), 'extractor_count': len(registry),
             'note': '适配器目录不等于可下载平台数量。实际可用性取决于链接、网络、登录和权限；请查看样例验证记录。'}
+
+
+def extract_public_extra(url):
+    from platform_adapters import extract_public_extra as extract
+    return extract(url)
