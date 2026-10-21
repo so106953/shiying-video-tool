@@ -2,12 +2,12 @@ import { useEffect, useState } from 'react';
 import { ArrowRight, Clipboard, Download, Plus, RotateCw, Link2, Play, Video, ChevronRight } from 'lucide-react';
 import { Button, PageHeading, Status, Thumb, Empty } from './ui';
 import { api, bytes, duration, linksFromText, post } from './api';
+import PlatformIcon from './PlatformIcon';
 
-const platformMarks = { '抖音': ['♪', 'douyin'], '小红书': ['书', 'redbook'], '今日头条': ['头', 'redbook'], 'TikTok': ['♪', 'douyin'], 'Instagram': ['◎', 'redbook'], '微博': ['博', 'redbook'], 'Streamable': ['▶', 'youtube'] };
 export function Platforms({ onMore }) {
   const [platforms, setPlatforms] = useState([]);
   useEffect(() => { let active = true; api('/platforms').then(data => { if (active) setPlatforms(Object.values(data.groups).flat().filter(item => item.verified)); }).catch(() => {}); return () => { active = false; }; }, []);
-  return <div className="platform-row"><span className="muted platform-caption">样例已通过</span>{platforms.map(({ name }) => { const [mark, className] = platformMarks[name] || ['▶', 'youtube']; return <span className="platform" key={name}><i className={className}>{mark}</i>{name}</span>; })}<button className="text-button" onClick={onMore}>••• <span>更多平台</span></button></div>;
+  return <div className="platform-row"><span className="muted platform-caption">样例已通过</span>{platforms.map(({ name }) => <span className="platform" key={name}><PlatformIcon name={name}/>{name}</span>)}<button className="text-button" onClick={onMore}>••• <span>更多平台</span></button></div>;
 }
 
 export function Result({ item, start, defaults, notify, workerConfigured, replace }) {

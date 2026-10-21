@@ -1,0 +1,570 @@
+{
+  "douyin": {
+    "src": "/platforms/douyin.png",
+    "source": "https://is1-ssl.mzstatic.com/image/thumb/Purple221/v4/56/0d/e6/560de620-6e7e-4679-43e4-689a52d71e4c/AppIcon-0-0-1x_U007emarketing-0-0-0-7-0-0-85-220.png/512x512bb.jpg",
+    "homepage": "https://www.douyin.com/",
+    "app_store": "https://apps.apple.com/cn/app/%E6%8A%96%E9%9F%B3/id1142110895?uo=4",
+    "app_name": "抖音",
+    "developer": "Beijing Douyin Technology Co., Ltd.",
+    "original_size": [
+      512,
+      512
+    ],
+    "size": [
+      96,
+      96
+    ]
+  },
+  "bilibili": {
+    "src": "/platforms/bilibili.png",
+    "source": "https://is1-ssl.mzstatic.com/image/thumb/Purple211/v4/d3/25/b7/d325b78e-392f-402d-5927-94327f0c4499/AppIcon-0-0-1x_U007epad-0-1-0-sRGB-85-220.png/512x512bb.jpg",
+    "homepage": "https://www.bilibili.com/",
+    "app_store": "https://apps.apple.com/cn/app/%E5%93%94%E5%93%A9%E5%93%94%E5%93%A9-%E5%BC%B9%E5%B9%95%E7%95%AA%E5%89%A7%E7%9B%B4%E6%92%AD%E9%AB%98%E6%B8%85%E8%A7%86%E9%A2%91/id736536022?uo=4",
+    "app_name": "哔哩哔哩-弹幕番剧直播高清视频",
+    "developer": "bilibili",
+    "original_size": [
+      512,
+      512
+    ],
+    "size": [
+      96,
+      96
+    ]
+  },
+  "xiaohongshu": {
+    "src": "/platforms/xiaohongshu.png",
+    "source": "https://is1-ssl.mzstatic.com/image/thumb/Purple211/v4/4f/54/88/4f54884e-c820-aa94-5797-c6b69c27ed3a/AppIcon-0-0-1x_U007epad-0-11-0-85-220.png/512x512bb.jpg",
+    "homepage": "https://www.xiaohongshu.com/",
+    "app_store": "https://apps.apple.com/cn/app/%E5%B0%8F%E7%BA%A2%E4%B9%A6-%E4%BD%A0%E7%9A%84%E7%94%9F%E6%B4%BB%E5%85%B4%E8%B6%A3%E7%A4%BE%E5%8C%BA/id741292507?uo=4",
+    "app_name": "小红书 - 你的生活兴趣社区",
+    "developer": "Xingin",
+    "original_size": [
+      512,
+      512
+    ],
+    "size": [
+      96,
+      96
+    ]
+  },
+  "toutiao": {
+    "src": "/platforms/toutiao.png",
+    "source": "https://is1-ssl.mzstatic.com/image/thumb/Purple221/v4/dc/8b/f9/dc8bf9b7-f205-508b-96fd-dc813e866a84/AppIcon-News-0-0-1x_U007emarketing-0-8-0-85-220.png/512x512bb.jpg",
+    "homepage": "https://www.toutiao.com/",
+    "app_store": "https://apps.apple.com/cn/app/%E4%BB%8A%E6%97%A5%E5%A4%B4%E6%9D%A1/id529092160?uo=4",
+    "app_name": "今日头条",
+    "developer": "Beijing Douyin Information Service Co., Ltd.",
+    "original_size": [
+      512,
+      512
+    ],
+    "size": [
+      96,
+      96
+    ]
+  },
+  "weibo": {
+    "src": "/platforms/weibo.png",
+    "source": "https://is1-ssl.mzstatic.com/image/thumb/Purple221/v4/38/2d/a6/382da6e2-3db6-e8dd-ac06-57f54bfd6f25/WeiboAppIcon-0-0-1x_U007epad-0-1-0-85-220.png/512x512bb.jpg",
+    "homepage": "https://weibo.com/",
+    "app_store": "https://apps.apple.com/cn/app/%E5%BE%AE%E5%8D%9A/id350962117?uo=4",
+    "app_name": "微博",
+    "developer": "SINA Corporation",
+    "original_size": [
+      512,
+      512
+    ],
+    "size": [
+      96,
+      96
+    ]
+  },
+  "kuaishou": {
+    "src": "/platforms/kuaishou.png",
+    "source": "https://is1-ssl.mzstatic.com/image/thumb/Purple221/v4/f8/76/95/f876956b-ef04-8183-1b8c-c21bf6dbebf2/AppIcon-0-0-1x_U007emarketing-0-8-0-sRGB-85-220.png/512x512bb.jpg",
+    "homepage": "https://www.kuaishou.com/",
+    "app_store": "https://apps.apple.com/cn/app/%E5%BF%AB%E6%89%8B/id440948110?uo=4",
+    "app_name": "快手",
+    "developer": "Beijing Kwai Technology Co., Ltd.",
+    "original_size": [
+      512,
+      512
+    ],
+    "size": [
+      96,
+      96
+    ]
+  },
+  "ixigua": {
+    "src": "/platforms/ixigua.png",
+    "source": "https://is1-ssl.mzstatic.com/image/thumb/Purple211/v4/0f/9e/6c/0f9e6c10-9f31-98c4-9497-8158849975ce/AppIcon-0-0-1x_U007epad-0-1-0-85-220.png/512x512bb.jpg",
+    "homepage": "https://www.ixigua.com/",
+    "app_store": "https://apps.apple.com/cn/app/%E8%A5%BF%E7%93%9C%E8%A7%86%E9%A2%91/id1134496215?uo=4",
+    "app_name": "西瓜视频",
+    "developer": "Beijing Douyin Information Service Co., Ltd.",
+    "original_size": [
+      512,
+      512
+    ],
+    "size": [
+      96,
+      96
+    ]
+  },
+  "instagram": {
+    "src": "/platforms/instagram.png",
+    "source": "https://static.cdninstagram.com/rsrc.php/yr/r/rzWiSjZRxk5.webp",
+    "homepage": "https://www.instagram.com/",
+    "original_size": [
+      32,
+      32
+    ],
+    "size": [
+      32,
+      32
+    ]
+  },
+  "streamable": {
+    "src": "/platforms/streamable.png",
+    "source": "https://statics.streamable.com/static/favicon.ico",
+    "homepage": "https://streamable.com/",
+    "original_size": [
+      32,
+      32
+    ],
+    "size": [
+      32,
+      32
+    ]
+  },
+  "tiktok": {
+    "src": "/platforms/tiktok.png",
+    "source": "https://www.tiktok.com/favicon.ico",
+    "homepage": "https://www.tiktok.com/",
+    "original_size": [
+      32,
+      32
+    ],
+    "size": [
+      32,
+      32
+    ]
+  },
+  "x": {
+    "src": "/platforms/x.png",
+    "source": "https://x.com/apple-touch-icon.png",
+    "homepage": "https://x.com/",
+    "original_size": [
+      1024,
+      1024
+    ],
+    "size": [
+      256,
+      256
+    ]
+  },
+  "pinterest": {
+    "src": "/platforms/pinterest.png",
+    "source": "https://s.pinimg.com/webapp/logo_transparent_144x144-3da7a67b.png",
+    "homepage": "https://www.pinterest.com/",
+    "original_size": [
+      144,
+      144
+    ],
+    "size": [
+      144,
+      144
+    ]
+  },
+  "pipixia": {
+    "src": "/platforms/pipixia.png",
+    "source": "https://is1-ssl.mzstatic.com/image/thumb/Purple211/v4/c4/cb/5b/c4cb5bca-8530-87b3-5928-6a6ec58470ac/AppIcon-0-0-1x_U007emarketing-0-7-0-0-85-220.png/512x512bb.jpg",
+    "homepage": "https://h5.pipix.com/ppx/item/7464040836074838284",
+    "app_store": "https://apps.apple.com/cn/app/%E7%9A%AE%E7%9A%AE%E8%99%BE-%E5%B9%B4%E8%BD%BB%E4%BA%BA%E8%81%9A%E9%9B%86%E7%9A%84%E5%86%85%E5%AE%B9%E4%BA%92%E5%8A%A8%E7%A4%BE%E5%8C%BA/id1393912676?uo=4",
+    "app_name": "皮皮虾 - 年轻人聚集的内容互动社区",
+    "developer": "Fujian PiPi Dance Technology Co., Ltd.",
+    "original_size": [
+      512,
+      512
+    ],
+    "size": [
+      96,
+      96
+    ]
+  },
+  "tangdou": {
+    "src": "/platforms/tangdou.png",
+    "source": "https://is1-ssl.mzstatic.com/image/thumb/Purple211/v4/6f/52/aa/6f52aa10-49a0-e099-2367-a0b161a43669/AppIcon-0-0-1x_U007emarketing-0-8-0-0-85-220.jpeg/512x512bb.jpg",
+    "homepage": "https://www.tangdou.com/",
+    "app_store": "https://apps.apple.com/cn/app/%E7%B3%96%E8%B1%86-%E5%85%A8%E6%B0%91%E5%B9%BF%E5%9C%BA%E8%88%9E%E8%A7%86%E9%A2%91%E7%A4%BE%E5%8C%BA/id1278869344?uo=4",
+    "app_name": "糖豆 - 全民广场舞视频社区",
+    "developer": "Xiaotang Interactive Entertainment (Beijing) Technology Co., Ltd.",
+    "original_size": [
+      512,
+      512
+    ],
+    "size": [
+      96,
+      96
+    ]
+  },
+  "haokan": {
+    "src": "/platforms/haokan.png",
+    "source": "https://is1-ssl.mzstatic.com/image/thumb/Purple211/v4/52/03/cf/5203cfe5-4c47-0c23-f1ab-1c4e924f4acd/AppIcon-0-0-1x_U007epad-0-1-0-0-sRGB-85-220.png/512x512bb.jpg",
+    "homepage": "https://haokan.baidu.com/",
+    "app_store": "https://apps.apple.com/cn/app/%E5%A5%BD%E7%9C%8B%E8%A7%86%E9%A2%91/id1092031003?uo=4",
+    "app_name": "好看视频",
+    "developer": "Beijing Baidu Netcom Science & Technology Co.,Ltd",
+    "original_size": [
+      512,
+      512
+    ],
+    "size": [
+      96,
+      96
+    ]
+  },
+  "zhihu": {
+    "src": "/platforms/zhihu.png",
+    "source": "https://is1-ssl.mzstatic.com/image/thumb/Purple221/v4/8f/48/18/8f4818e2-f096-eff0-e355-e4a89e6bc2c3/AppIcon-0-0-1x_U007emarketing-0-7-0-sRGB-85-220.png/512x512bb.jpg",
+    "homepage": "https://www.zhihu.com/",
+    "app_store": "https://apps.apple.com/cn/app/%E7%9F%A5%E4%B9%8E/id432274380?uo=4",
+    "app_name": "知乎",
+    "developer": "Beijing Zhizhetianxia Technology Co., Ltd.",
+    "original_size": [
+      512,
+      512
+    ],
+    "size": [
+      96,
+      96
+    ]
+  },
+  "cctv": {
+    "src": "/platforms/cctv.png",
+    "source": "https://is1-ssl.mzstatic.com/image/thumb/Purple211/v4/a7/b3/a5/a7b3a524-679c-fb83-b0c8-7e245d76893c/AppIcon-0-0-1x_U007emarketing-0-8-0-sRGB-85-220.png/512x512bb.jpg",
+    "homepage": "https://www.cctv.com/",
+    "app_store": "https://apps.apple.com/cn/app/%E5%A4%AE%E8%A7%86%E5%BD%B1%E9%9F%B3-%E6%96%B0%E9%97%BB%E4%BD%93%E8%82%B2%E4%BA%BA%E6%96%87%E5%BD%B1%E8%A7%86%E9%AB%98%E6%B8%85%E5%B9%B3%E5%8F%B0/id331259725?uo=4",
+    "app_name": "央视影音-新闻体育人文影视高清平台",
+    "developer": "CCTV international network company Limited",
+    "original_size": [
+      512,
+      512
+    ],
+    "size": [
+      96,
+      96
+    ]
+  },
+  "netease": {
+    "src": "/platforms/netease.png",
+    "source": "https://is1-ssl.mzstatic.com/image/thumb/Purple211/v4/32/f5/c4/32f5c44e-8eed-19b3-b6e7-67bf596a7dfb/AppIcon-0-0-1x_U007emarketing-0-8-0-0-85-220.png/512x512bb.jpg",
+    "homepage": "https://www.163.com/",
+    "app_store": "https://apps.apple.com/cn/app/%E7%BD%91%E6%98%93%E6%96%B0%E9%97%BB-%E5%A4%B4%E6%9D%A1%E6%96%B0%E9%97%BB%E8%A7%86%E9%A2%91%E8%B5%84%E8%AE%AF%E5%B9%B3%E5%8F%B0/id425349261?uo=4",
+    "app_name": "网易新闻-头条新闻视频资讯平台",
+    "developer": "NetEase Media Technology (Beijing) Co., Ltd.",
+    "original_size": [
+      512,
+      512
+    ],
+    "size": [
+      96,
+      96
+    ]
+  },
+  "acfun": {
+    "src": "/platforms/acfun.png",
+    "source": "https://is1-ssl.mzstatic.com/image/thumb/Purple221/v4/02/15/3b/02153b3b-585e-79be-3415-79a1049d94df/AppIcon-0-0-1x_U007emarketing-0-8-0-85-220.png/512x512bb.jpg",
+    "homepage": "https://www.acfun.cn/",
+    "app_store": "https://apps.apple.com/cn/app/acfun-%E5%9B%BD%E5%86%85%E5%BC%B9%E5%B9%95%E5%8A%A8%E6%BC%AB%E8%A7%86%E9%A2%91%E7%AC%AC%E4%B8%80%E5%AE%B6/id894974941?uo=4",
+    "app_name": "AcFun-国内弹幕动漫视频第一家",
+    "developer": "北京弹幕网络科技有限公司",
+    "original_size": [
+      512,
+      512
+    ],
+    "size": [
+      96,
+      96
+    ]
+  },
+  "youtube": {
+    "src": "/platforms/youtube.png",
+    "source": "https://www.gstatic.com/youtube/img/branding/favicon/favicon_144x144.png",
+    "homepage": "https://www.youtube.com/",
+    "original_size": [
+      144,
+      144
+    ],
+    "size": [
+      144,
+      144
+    ]
+  },
+  "facebook": {
+    "src": "/platforms/facebook.png",
+    "source": "https://static.xx.fbcdn.net/rsrc.php/y1/r/ay1hV6OlegS.ico",
+    "homepage": "https://www.facebook.com/",
+    "original_size": [
+      60,
+      60
+    ],
+    "size": [
+      60,
+      60
+    ]
+  },
+  "vimeo": {
+    "src": "/platforms/vimeo.png",
+    "source": "https://f.vimeocdn.com/cms/images/apple-icon.png",
+    "homepage": "https://vimeo.com/",
+    "original_size": [
+      180,
+      180
+    ],
+    "size": [
+      180,
+      180
+    ]
+  },
+  "dailymotion": {
+    "src": "/platforms/dailymotion.png",
+    "source": "https://static.neon-ssr.dailymotion.com/neon-seo-ssr/static/favicons/android-icon-192x192.12ce02f3a914dc2f3d6d.png",
+    "homepage": "https://www.dailymotion.com/",
+    "original_size": [
+      192,
+      192
+    ],
+    "size": [
+      192,
+      192
+    ]
+  },
+  "reddit": {
+    "src": "/platforms/reddit.png",
+    "source": "https://www.redditstatic.com/desktop2x/img/favicon/favicon-96x96.png",
+    "homepage": "https://www.reddit.com/",
+    "original_size": [
+      96,
+      96
+    ],
+    "size": [
+      96,
+      96
+    ]
+  },
+  "threads": {
+    "src": "/platforms/threads.png",
+    "source": "https://static.cdninstagram.com/rsrc.php/yn/r/fFvbm7ecCaM.webp",
+    "homepage": "https://www.threads.com/",
+    "original_size": [
+      256,
+      256
+    ],
+    "size": [
+      256,
+      256
+    ]
+  },
+  "weverse": {
+    "src": "/platforms/weverse.png",
+    "source": "https://cdn-v2pstatic.weverse.io/weverse3/3_18_5/logo512.png",
+    "homepage": "https://weverse.io/",
+    "original_size": [
+      512,
+      512
+    ],
+    "size": [
+      256,
+      256
+    ]
+  },
+  "xinpianchang": {
+    "src": "/platforms/xinpianchang.png",
+    "source": "https://www.xinpianchang.com/favicon.ico",
+    "homepage": "https://www.xinpianchang.com/",
+    "original_size": [
+      32,
+      32
+    ],
+    "size": [
+      32,
+      32
+    ]
+  },
+  "sohu": {
+    "src": "/platforms/sohu.png",
+    "source": "https://css.tv.itc.cn/channel/v1/images/logo.png",
+    "homepage": "https://tv.sohu.com/",
+    "original_size": [
+      144,
+      144
+    ],
+    "size": [
+      144,
+      144
+    ]
+  },
+  "huya": {
+    "src": "/platforms/huya.png",
+    "source": "https://www.huya.com/favicon.ico",
+    "homepage": "https://www.huya.com/",
+    "original_size": [
+      32,
+      32
+    ],
+    "size": [
+      32,
+      32
+    ]
+  },
+  "douyu": {
+    "src": "/platforms/douyu.png",
+    "source": "https://www.douyu.com/favicon.ico",
+    "homepage": "https://www.douyu.com/",
+    "original_size": [
+      48,
+      48
+    ],
+    "size": [
+      48,
+      48
+    ]
+  },
+  "pearvideo": {
+    "src": "/platforms/pearvideo.png",
+    "source": "https://page.pearvideo.com/webres/img/logo300.png?v=4.93",
+    "homepage": "https://www.pearvideo.com/",
+    "original_size": [
+      300,
+      300
+    ],
+    "size": [
+      256,
+      256
+    ]
+  },
+  "meipai": {
+    "src": "/platforms/meipai.png",
+    "source": "https://www.meipai.com/favicon32.ico",
+    "homepage": "https://www.meipai.com/",
+    "original_size": [
+      32,
+      32
+    ],
+    "size": [
+      32,
+      32
+    ]
+  },
+  "dongchedi": {
+    "src": "/platforms/dongchedi.png",
+    "source": "https://p6-dcd.byteimg.com/img/tos-cn-i-dcdx/4fbb15493036489f950935fa4d86dd8e~tplv-dcdx-default:0:0.png",
+    "homepage": "https://www.dongchedi.com/",
+    "original_size": [
+      96,
+      96
+    ],
+    "size": [
+      96,
+      96
+    ]
+  },
+  "weishi": {
+    "src": "/platforms/weishi.png",
+    "source": "https://isee.weishi.qq.com/favicon.ico",
+    "homepage": "https://isee.weishi.qq.com/",
+    "original_size": [
+      32,
+      32
+    ],
+    "size": [
+      32,
+      32
+    ]
+  },
+  "wechat": {
+    "src": "/platforms/wechat.png",
+    "source": "https://is1-ssl.mzstatic.com/image/thumb/Purple221/v4/61/70/2e/61702e05-0531-165f-5cd3-012c8b5b3b20/AppIcon-0-0-1x_U007epad-0-1-0-sRGB-0-85-220.png/512x512bb.jpg",
+    "homepage": "https://mp.weixin.qq.com/",
+    "app_store": "https://apps.apple.com/cn/app/%E5%BE%AE%E4%BF%A1/id414478124?uo=4",
+    "app_name": "微信",
+    "developer": "WeChat",
+    "original_size": [
+      512,
+      512
+    ],
+    "size": [
+      96,
+      96
+    ]
+  },
+  "tencentvideo": {
+    "src": "/platforms/tencentvideo.png",
+    "source": "https://vfiles.gtimg.cn/wuji_dashboard/xy/starter/4ea79867.png",
+    "homepage": "https://v.qq.com/",
+    "original_size": [
+      192,
+      192
+    ],
+    "size": [
+      192,
+      192
+    ]
+  },
+  "qq": {
+    "src": "/platforms/qq.png",
+    "source": "https://is1-ssl.mzstatic.com/image/thumb/Purple221/v4/f6/c5/85/f6c5856f-50fe-5718-f29d-864565d9bdb1/AppIcon-1-0-0-1x_U007epad-0-1-0-sRGB-85-220.png/512x512bb.jpg",
+    "homepage": "https://im.qq.com/",
+    "app_store": "https://apps.apple.com/cn/app/qq/id444934666?uo=4",
+    "app_name": "QQ",
+    "developer": "Tencent Technology (Shenzhen) Company Limited",
+    "original_size": [
+      512,
+      512
+    ],
+    "size": [
+      96,
+      96
+    ]
+  },
+  "baike": {
+    "src": "/platforms/baike.png",
+    "source": "https://baikebcs.bdimg.com/baike-react/common/favicon-baidu.ico",
+    "homepage": "https://baike.baidu.com/",
+    "original_size": [
+      64,
+      64
+    ],
+    "size": [
+      64,
+      64
+    ]
+  },
+  "yinyuetai": {
+    "src": "/platforms/yinyuetai.png",
+    "source": "https://www.yinyuetai.com/images/favicon.ico",
+    "homepage": "https://www.yinyuetai.com/",
+    "original_size": [
+      93,
+      52
+    ],
+    "size": [
+      93,
+      52
+    ]
+  },
+  "pptv": {
+    "src": "/platforms/pptv.png",
+    "source": "https://sr1.pplive.cn/mcms/nav/images/favicon.ico",
+    "homepage": "https://www.pptv.com/",
+    "original_size": [
+      32,
+      32
+    ],
+    "size": [
+      32,
+      32
+    ]
+  }
+}
