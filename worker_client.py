@@ -3,7 +3,7 @@ import os,re,json
 from urllib.parse import urlsplit
 import httpx
 from fastapi import HTTPException
-from engine import validate_url
+from engine import validate_url,friendly_error
 
 def configuration():
  base=os.environ.get('SHIYING_WORKER_URL','').rstrip('/')
@@ -68,14 +68,22 @@ def resolve(url,sign,include_conversions=False):
  smaller=next((h for h in suitable if h<=480 and h!=recommended),None)
  if smaller:selected.append(smaller)
  options=[]
+ audio_error=None
  specifications=[('video',ext,height)for height in selected for ext in (('mp4','mkv')if include_conversions else ('mp4',))]
  if include_conversions and parsed.get('has_audio',True):
   specifications.extend(('audio',ext,None)for ext in ('mp3','m4a'))
  for kind,ext,height in specifications:
-  task=request('POST','/api/tasks',{'parsed_id':parsed['id'],'kind':kind,'format':ext,'height':height,'queued':True})
+  try:
+   task=request('POST','/api/tasks',{'parsed_id':parsed['id'],'kind':kind,'format':ext,'height':height,'queued':True})
+  except Exception as exc:
+   if kind!='audio':raise
+   audio_error=friendly_error(exc)
+   continue
   source,headers=job_source(task['id'])
   options.append({'kind':kind,'format':ext,'height':height,'size':None,'codec':None,'delivery':'worker','ticket':sign(source,headers,ext,worker_job=task['id'])})
- return parsed|{'cloud':True,'options':options,'heights':[h for h in selected if h],'recommended_height':recommended,'size':None,'backend':'worker','expanded_formats':include_conversions}
+ result=parsed|{'cloud':True,'options':options,'heights':[h for h in selected if h],'recommended_height':recommended,'size':None,'backend':'worker','expanded_formats':include_conversions}
+ if audio_error:result['audio_error']='部分音频格式暂未准备好：'+audio_error+' 视频仍可单独下载，可重试音频。'
+ return result
 
 def prepare(payload,action):
  ident=validate_job(payload)

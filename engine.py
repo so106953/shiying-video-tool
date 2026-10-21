@@ -363,3 +363,13 @@ def extraction_catalog(query=''):
 def extract_public_extra(url):
     from platform_adapters import extract_public_extra as extract
     return extract(url)
+
+
+def extract_public_media(url):
+    """Use the same public share adapters for worker parsing and file extraction."""
+    for extract in (extract_public_extra, extract_public_douyin, extract_public_xiaohongshu,
+                    extract_public_ixigua, extract_public_twitter):
+        info = extract(url)
+        if info is not None:
+            return info
+    return None

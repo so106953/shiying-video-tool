@@ -13,7 +13,7 @@ with tempfile.TemporaryDirectory(prefix='shiying-formats-')as directory:
    except Exception:time.sleep(.1)
   c.get('/api/backend-status').raise_for_status()
   catalog=c.get('/api/extractors',params={'q':'知乎'}).json();assert catalog['items'][0]['available']
-  response=c.post('/api/parse',json={'urls':['https://www.w3schools.com/html/mov_bbb.mp4'],'backend':'worker','formats':True});response.raise_for_status()
+  response=c.post('/api/parse',json={'urls':['https://www.w3schools.com/html/mov_bbb.mp4']});response.raise_for_status()
   item=response.json()['results'][0];assert item['status']=='success',item
   assert {(o['kind'],o['format'])for o in item['options']}=={('video','mp4'),('video','mkv'),('audio','mp3'),('audio','m4a')}
   for ext in ['mp4','mkv','mp3','m4a']:

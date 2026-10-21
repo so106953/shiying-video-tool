@@ -89,11 +89,18 @@ def verify_source(ticket):
 
 def parse_media(url, prefer_worker=False, include_conversions=False):
     attempted_worker = False
+    conversion_error = None
     try:
         url = validate_url(url)
         if prefer_worker or include_conversions or worker_client.preferred(url):
             attempted_worker = True
-            return worker_client.resolve(url, sign_source, include_conversions=include_conversions)
+            try:
+                return worker_client.resolve(url, sign_source, include_conversions=include_conversions)
+            except Exception as worker_error:
+                if not include_conversions:
+                    raise
+                # Audio preparation must not discard a publicly downloadable video.
+                conversion_error = friendly_error(worker_error)
         info = extract_public_extra(url)
         if info is None:
             info = extract_public_douyin(url)
@@ -160,6 +167,8 @@ def parse_media(url, prefer_worker=False, include_conversions=False):
         result['recommended_height'] = next((item['height'] for item in options if item['kind'] == 'video' and str(item.get('codec') or '').lower().startswith(('avc', 'h264'))), result['heights'][0] if result['heights'] else None)
         result['size'] = next((item['size'] for item in options if item['kind'] == 'video'), None)
         result['cloud'] = True
+        if conversion_error and not any(option['kind'] == 'audio' for option in options):
+            result['audio_error'] = '音频暂未准备好：' + conversion_error + ' 视频仍可单独下载，可重试音频。'
         return result
     except Exception as exc:
         if worker_client.configured() and not attempted_worker:
@@ -173,7 +182,7 @@ def parse_media(url, prefer_worker=False, include_conversions=False):
 class ParseBody(BaseModel):
     urls: list[str] = Field(min_length=1, max_length=20)
     backend: Literal['auto', 'worker'] = 'auto'
-    formats: bool = False
+    formats: bool = True
 
 
 class ChunkBody(BaseModel):
