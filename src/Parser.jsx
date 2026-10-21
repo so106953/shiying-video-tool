@@ -18,6 +18,10 @@ export function Result({ item, start, defaults, notify, workerConfigured, replac
   const [format, setFormat] = useState(item.cloud ? item.options.find(option => option.kind === initialKind && (initialKind === 'audio' || option.height === (initialHeight || null)))?.format || 'mp4' : defaults.videoFormat || 'mp4');
   const [busy, setBusy] = useState(false);
   const [playing, setPlaying] = useState(false);
+  const [preparing, setPreparing] = useState('');
+  const [formatError, setFormatError] = useState('');
+  const hasAudio = !item.cloud || item.options.some(option => option.kind === 'audio');
+  const noAudio = Boolean(item.cloud && item.expanded_formats && !hasAudio);
   const canPreview = item.direct && item.backend !== 'worker';
   const previewSource = item.cloud ? `/api/media?ticket=${encodeURIComponent(item.options.find(option => option.kind === 'video')?.ticket || '')}` : item.url;
   async function download(queued) {
@@ -25,22 +29,58 @@ export function Result({ item, start, defaults, notify, workerConfigured, replac
     try { await start(item, { kind, height: height ? Number(height) : null, format, queued }); }
     finally { setBusy(false); }
   }
-  async function expandFormats() {
+  async function expandFormats(targetKind = kind) {
+    if (busy) return;
+    setFormatError('');
+    if (!workerConfigured) {
+      setFormatError('音频提取服务尚未连接，请到设置中检查后端连接。视频仍可正常下载。');
+      return;
+    }
     setBusy(true);
+    setPreparing(targetKind === 'audio' ? 'audio' : 'formats');
     try {
       const data = await post('/parse', { urls: [item.url], backend: 'worker', formats: true });
       const result = data.results[0];
-      if (result.status !== 'success') throw new Error(result.error || '暂时无法获取更多格式，请稍后重试。');
-      replace(result);
-    } catch (error) { notify(error.message, true); }
-    finally { setBusy(false); }
+      if (result?.status !== 'success') throw new Error(result?.error || '暂时无法获取更多格式，请稍后重试。');
+      const nextHeight = result.heights?.includes(Number(height)) ? Number(height) : result.recommended_height || result.heights?.[0] || '';
+      const choices = result.options.filter(option => option.kind === targetKind && (targetKind === 'audio' || option.height === (nextHeight || null)));
+      const preferred = targetKind === 'audio' ? defaults.audioFormat || 'mp3' : format;
+      const selected = choices.find(option => option.format === preferred) || choices[0];
+      // Keep the UI mounted while retaining the new parsed ID used by the download queue.
+      replace({ ...result, resultKey: item.resultKey || item.id });
+      setHeight(nextHeight);
+      if (selected) {
+        setKind(targetKind);
+        setFormat(selected.format);
+      } else {
+        setKind('video');
+        setFormat(result.options.find(option => option.kind === 'video' && option.height === (nextHeight || null))?.format || 'mp4');
+        setFormatError('未找到可提取的音轨，这个视频可能没有声音。视频仍可下载。');
+      }
+    } catch (error) {
+      setFormatError(`音频或格式准备失败：${error.message} 可再次点击重试，原视频仍可下载。`);
+    } finally {
+      setPreparing('');
+      setBusy(false);
+    }
   }
-  function changeKind(value) { setKind(value); setFormat(item.cloud ? item.options.find(option => option.kind === value && (value === 'audio' || option.height === (Number(height) || null)))?.format || 'mp4' : value === 'audio' ? defaults.audioFormat || 'mp3' : defaults.videoFormat || 'mp4'); }
+  function changeKind(value) {
+    if (busy) return;
+    if (value === 'audio' && !hasAudio) {
+      expandFormats('audio');
+      return;
+    }
+    setFormatError('');
+    setKind(value);
+    const choices = item.cloud ? item.options.filter(option => option.kind === value && (value === 'audio' || option.height === (Number(height) || null))) : [];
+    const preferred = value === 'audio' ? defaults.audioFormat || 'mp3' : defaults.videoFormat || 'mp4';
+    setFormat(choices.find(option => option.format === preferred)?.format || choices[0]?.format || preferred);
+  }
   function changeHeight(value) { setHeight(value); if (item.cloud) setFormat(item.options.find(option => option.kind === kind && option.height === (Number(value) || null))?.format || format); }
   const availableFormats = item.cloud ? [...new Set(item.options.filter(option => option.kind === kind && (kind === 'audio' || option.height === (Number(height) || null))).map(option => option.format))] : kind === 'audio' ? ['mp3', 'm4a'] : ['mp4', 'mkv'];
   return <section className="panel result-panel"><div className="section-heading"><h2>解析结果</h2><Status good>解析完成</Status></div><div className="result-layout">
     <div className="result-media">{canPreview && initialKind === 'video' && item.ext !== 'mp3' ? <video key={item.url} src={previewSource} preload="metadata" controls={playing} onClick={() => setPlaying(true)} aria-label="视频预览"/> : <Thumb src={item.thumbnail} className="large"/>}{!playing && canPreview && initialKind === 'video' ? <button className="play-button" onClick={event => { setPlaying(true); const video = event.currentTarget.parentElement.querySelector('video'); video?.play().catch(() => notify('请点击视频播放控件开始播放')); }} aria-label="播放视频"><Play size={24} fill="currentColor"/></button> : null}{duration(item.duration) ? <span className="duration">{duration(item.duration)}</span> : null}</div>
-    <div className="result-details"><h3>{item.title}</h3><p className="creator">{item.uploader} <span>·</span> {item.platform}</p>{item.cloud && workerConfigured && !item.expanded_formats ? <div className="format-expansion"><Button variant="outline" disabled={busy} onClick={expandFormats}>{busy ? '正在获取格式…' : '更多格式 / 提取音频'}</Button><small>视频 MP4、MKV · 音频 MP3、M4A · 免费处理</small></div> : null}<div className="segmented" aria-label="媒体类型"><button disabled={item.cloud && !item.options.some(option => option.kind === 'video')} className={kind === 'video' ? 'selected' : ''} onClick={() => changeKind('video')}>视频</button><button disabled={item.cloud && !item.options.some(option => option.kind === 'audio')} className={kind === 'audio' ? 'selected' : ''} onClick={() => changeKind('audio')}>仅音频</button></div><div className="result-options"><label>清晰度<select value={height} onChange={event => changeHeight(event.target.value)} disabled={kind === 'audio'}>{item.heights?.length ? item.heights.map(value => <option key={value} value={value}>{value >= 2160 ? '4K 超清' : `${value}P${value >= 1080 ? ' 高清' : ''}`}</option>) : <option value="">原始画质</option>}</select></label><label>格式<select value={format} onChange={event => setFormat(event.target.value)}>{availableFormats.map(value => <option key={value} value={value}>{value.toUpperCase()}</option>)}</select></label><div className="download-actions"><Button variant="primary" disabled={busy} onClick={() => download(false)}><Download size={18}/>{busy ? '正在添加…' : '下载到本地'}</Button><Button variant="outline" disabled={busy} onClick={() => download(true)}><Plus size={18}/>加入队列</Button></div></div><p className="size-note">{item.size ? `参考大小：${bytes(item.size)} · 实际大小以文件为准` : '文件大小将在下载时显示'}{item.cloud ? item.options.some(option => option.delivery === 'hls' && option.height === height) ? ' · 分片在设备合并，上限 64 MB；暂停后重新开始' : item.backend === 'worker' ? ` · 免费处理 · 单文件上限 256 MB · 服务器临时缓存${format === 'mkv' ? ' · MKV 请保存后用本地播放器打开' : ''}` : ' · 平台原始格式，无需转码' : ''}</p></div>
+    <div className="result-details"><h3>{item.title}</h3><p className="creator">{item.uploader} <span>·</span> {item.platform}</p>{item.cloud && workerConfigured && !item.expanded_formats ? <div className="format-expansion"><Button variant="outline" disabled={busy} onClick={() => expandFormats()}>{preparing ? '正在获取格式…' : '更多格式 / 提取音频'}</Button><small>视频 MP4、MKV · 音频 MP3、M4A · 免费处理</small></div> : null}<div className="segmented" aria-label="媒体类型"><button disabled={busy || (item.cloud && !item.options.some(option => option.kind === 'video'))} className={kind === 'video' ? 'selected' : ''} onClick={() => changeKind('video')}>视频</button><button disabled={busy || noAudio} aria-busy={preparing === 'audio'} className={kind === 'audio' ? 'selected' : ''} onClick={() => changeKind('audio')}>{preparing === 'audio' ? '正在准备音频…' : '仅音频'}</button></div>{preparing ? <p className="loading-note" role="status">{preparing === 'audio' ? '正在准备 MP3 / M4A 音频格式，完成后可下载或加入队列。首次连接可能需要一点时间。' : '正在准备更多视频和音频格式…'}</p> : null}{formatError ? <div className="inline-error" role="alert">{formatError}</div> : noAudio ? <p className="size-note">这个视频没有可用音轨，无法提取音频。</p> : null}<div className="result-options"><label>清晰度<select value={height} onChange={event => changeHeight(event.target.value)} disabled={busy || kind === 'audio'}>{item.heights?.length ? item.heights.map(value => <option key={value} value={value}>{value >= 2160 ? '4K 超清' : `${value}P${value >= 1080 ? ' 高清' : ''}`}</option>) : <option value="">原始画质</option>}</select></label><label>格式<select value={format} disabled={busy} onChange={event => setFormat(event.target.value)}>{availableFormats.map(value => <option key={value} value={value}>{value.toUpperCase()}</option>)}</select></label><div className="download-actions"><Button variant="primary" disabled={busy} onClick={() => download(false)}><Download size={18}/>{preparing ? '正在准备…' : busy ? '正在添加…' : '下载到本地'}</Button><Button variant="outline" disabled={busy} onClick={() => download(true)}><Plus size={18}/>加入队列</Button></div></div><p className="size-note">{item.size ? `参考大小：${bytes(item.size)} · 实际大小以文件为准` : '文件大小将在下载时显示'}{item.cloud ? item.options.some(option => option.delivery === 'hls' && option.height === height) ? ' · 分片在设备合并，上限 64 MB；暂停后重新开始' : item.backend === 'worker' ? ` · 免费处理 · 单文件上限 256 MB · 服务器临时缓存${format === 'mkv' ? ' · MKV 请保存后用本地播放器打开' : ''}` : ' · 平台原始格式，无需转码' : ''}</p></div>
   </div></section>;
 }
 
@@ -100,5 +140,5 @@ export default function Parser({ results, setResults, input, setInput, mode, set
   }
   const first = results.find(item => item.status === 'success');
   return <><PageHeading title={mode === 'single' ? '让每一个精彩，留在本地。' : '一次粘贴，批量保存。'} subtitle={mode === 'single' ? '粘贴视频链接，选择清晰度，轻松保存到你的设备。' : '多个平台的链接，也能在同一个地方处理。'}/><section className="panel parse-panel"><div className="tabs" role="tablist" aria-label="解析方式">{[['single', '单个链接'], ['batch', '批量解析']].map(([value, label]) => <button key={value} role="tab" aria-selected={mode === value} className={mode === value ? 'active' : ''} onClick={() => { setMode(value); setError(''); }} disabled={busy}>{label}</button>)}</div><div className="link-input"><textarea aria-label="视频链接" value={input} onChange={event => setInput(event.target.value)} placeholder={mode === 'single' ? '粘贴视频链接，或包含链接的分享文字' : '每行一个视频链接，最多支持 20 条'} disabled={busy}/><Button className="paste-button" onClick={paste} disabled={busy}><Clipboard size={17}/>粘贴</Button></div><div className="parse-controls"><span className="muted">{mode === 'batch' ? `每行一个链接 · 已识别 ${linksFromText(input).length} 条链接` : '自动识别平台 · 支持视频与音频'}{input && mode === 'batch' ? <button className="text-button" onClick={() => { setInput(''); setError(''); }}>清空</button> : null}</span><Button variant="primary" onClick={parse} disabled={busy}>{busy ? <span className="spinner"/> : null}{busy ? '正在解析…' : mode === 'batch' ? '解析全部' : '解析链接'}{!busy ? <ArrowRight size={18}/> : null}</Button></div>{error ? <div className="inline-error" role="alert"><Link2 size={17}/>{error}</div> : null}{busy ? <p className="loading-note" role="status">正在获取真实视频信息，平台响应可能需要一点时间。</p> : null}<Platforms onMore={morePlatforms}/></section>
-  {mode === 'single' && first ? <Result key={first.id} item={first} start={start} defaults={defaults} notify={notify} workerConfigured={workerConfigured} replace={item => setResults(rows => rows.map(row => row.id === first.id ? item : row))}/> : null}{mode === 'batch' && results.length ? <BatchResults key={results.map(item => item.id).join(',')} results={results} update={setResults} start={start} defaults={defaults} notify={notify}/> : null}{!results.length && !busy ? <section className="panel"><Empty title="精彩，从一个链接开始" subtitle="解析后，这里会显示视频预览、可用画质和下载选项。" icon={Video}/></section> : null}{children}</>;
+  {mode === 'single' && first ? <Result key={first.resultKey || first.id} item={first} start={start} defaults={defaults} notify={notify} workerConfigured={workerConfigured} replace={item => setResults(rows => rows.map(row => row.id === first.id ? item : row))}/> : null}{mode === 'batch' && results.length ? <BatchResults key={results.map(item => item.id).join(',')} results={results} update={setResults} start={start} defaults={defaults} notify={notify}/> : null}{!results.length && !busy ? <section className="panel"><Empty title="精彩，从一个链接开始" subtitle="解析后，这里会显示视频预览、可用画质和下载选项。" icon={Video}/></section> : null}{children}</>;
 }
