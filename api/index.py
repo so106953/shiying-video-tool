@@ -19,7 +19,7 @@ import worker_client
 from fastapi import FastAPI, HTTPException, Request
 from fastapi.responses import JSONResponse, Response
 from pydantic import BaseModel, Field
-from engine import SafeYoutubeDL, validate_url, metadata, friendly_error, ydl_options, extract_public_douyin, extract_public_xiaohongshu, extract_public_ixigua, extract_public_twitter
+from engine import extraction_catalog, SafeYoutubeDL, validate_url, metadata, friendly_error, ydl_options, extract_public_douyin, extract_public_xiaohongshu, extract_public_ixigua, extract_public_twitter
 
 app = FastAPI(docs_url=None, redoc_url=None)
 CHUNK = 3 * 1024 * 1024
@@ -87,13 +87,13 @@ def verify_source(ticket):
         raise HTTPException(400, '无效的视频下载地址，请重新解析链接。')
 
 
-def parse_media(url, prefer_worker=False):
+def parse_media(url, prefer_worker=False, include_conversions=False):
     attempted_worker = False
     try:
         url = validate_url(url)
-        if prefer_worker or worker_client.preferred(url):
+        if prefer_worker or include_conversions or worker_client.preferred(url):
             attempted_worker = True
-            return worker_client.resolve(url, sign_source)
+            return worker_client.resolve(url, sign_source, include_conversions=include_conversions)
         info = extract_public_douyin(url)
         if info is None:
             info = extract_public_xiaohongshu(url)
@@ -162,7 +162,7 @@ def parse_media(url, prefer_worker=False):
     except Exception as exc:
         if worker_client.configured() and not attempted_worker:
             try:
-                return worker_client.resolve(validate_url(url), sign_source)
+                return worker_client.resolve(validate_url(url), sign_source, include_conversions=include_conversions)
             except Exception as worker_error:
                 return {'id': hashlib.sha256((url + str(time.time())).encode()).hexdigest()[:32], 'url': url, 'status': 'error', 'error': friendly_error(worker_error)}
         return {'id': hashlib.sha256((url + str(time.time())).encode()).hexdigest()[:32], 'url': url, 'status': 'error', 'error': friendly_error(exc)}
@@ -171,6 +171,7 @@ def parse_media(url, prefer_worker=False):
 class ParseBody(BaseModel):
     urls: list[str] = Field(min_length=1, max_length=20)
     backend: Literal['auto', 'worker'] = 'auto'
+    formats: bool = False
 
 
 class ChunkBody(BaseModel):
@@ -313,6 +314,11 @@ PLATFORM_GROUPS = {'domestic': [{'name': '今日头条',
                     'stage': 'parse'}]}
 PLATFORM_CHECKED_AT = '2026-10-15T05:14:54.163892+00:00'
 
+@app.get('/api/extractors')
+def extractors(q: str = ''):
+    return extraction_catalog(q[:128])
+
+
 @app.get('/api/platforms')
 def platforms():
     return {'groups': PLATFORM_GROUPS, 'checked_at': PLATFORM_CHECKED_AT,
@@ -325,7 +331,7 @@ async def parse(body: ParseBody):
     semaphore = asyncio.Semaphore(3)
     async def one(url):
         async with semaphore:
-            return await asyncio.to_thread(parse_media, url, body.backend == 'worker')
+            return await asyncio.to_thread(parse_media, url, body.backend == 'worker', body.formats)
     return {'results': await asyncio.gather(*(one(url) for url in body.urls))}
 
 

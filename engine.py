@@ -132,6 +132,7 @@ def metadata(info, url):
             'platform': platform, 'uploader': info.get('uploader') or info.get('channel') or urlsplit(url).hostname,
             'thumbnail': info.get('thumbnail'), 'duration': info.get('duration'), 'heights': heights,
             'size': max((s for s in sizes if s), default=None), 'ext': info.get('ext') or 'mp4',
+            'has_audio': any(f.get('acodec') != 'none' for f in formats),
             'direct': bool(direct), 'created': time.time(), 'status': 'success'}
 
 DOUYIN_UA = 'Mozilla/5.0 (iPhone; CPU iPhone OS 17_0 like Mac OS X) AppleWebKit/605.1.15 Version/17.0 Mobile/15E148 Safari/604.1'
@@ -312,3 +313,43 @@ def extract_public_xiaohongshu(url):
                 'uploader': user.get('nickname') or user.get('nickName') or '小红书作者',
                 'thumbnail': thumbnail, 'duration': duration,
                 'formats': formats, 'ext': 'mp4', 'extractor_key': 'XiaoHongShu', 'webpage_url': target, 'http_headers': headers}
+
+
+# The registry describes extractors, not a count of verified websites.
+from functools import lru_cache
+
+@lru_cache(maxsize=1)
+def _extractor_catalog():
+    from yt_dlp.extractor import list_extractor_classes
+    return tuple(sorted({cls.ie_key() for cls in list_extractor_classes() if cls.working()}))
+
+
+def extraction_catalog(query=''):
+    aliases = {
+        'YouTube': ('Youtube',), '哔哩哔哩': ('BiliBili',), '抖音': ('Douyin',),
+        '小红书': ('XiaoHongShu',), '今日头条': ('Toutiao',), '西瓜视频': ('Ixigua',),
+        '快手': ('Kuaishou',), '微博': ('Weibo',), 'TikTok': ('TikTok',),
+        'Instagram': ('Instagram',), 'X / Twitter': ('Twitter',), 'Facebook': ('Facebook',),
+        'Pinterest': ('Pinterest',), 'Weverse': ('Weverse',), 'Vimeo': ('Vimeo',),
+        'Dailymotion': ('Dailymotion',), 'Reddit': ('Reddit',), 'Streamable': ('Streamable',),
+        '新片场': ('Xinpianchang',), '央视 CCTV': ('CCTV',), '搜狐视频': ('Sohu',),
+        '知乎': ('Zhihu',), 'AcFun': ('AcFunVideo',), '虎牙回放': ('HuyaVideo',),
+        '斗鱼回放': ('DouyuShow',), '梨视频': ('PearVideo',), '美拍': ('Meipai',),
+    }
+    registry = _extractor_catalog()
+    query = query.strip().casefold()
+    items = []
+    used = set()
+    for name, keys in aliases.items():
+        if query and query not in name.casefold() and not any(query in key.casefold() for key in keys):
+            continue
+        available = any(key in registry for key in keys)
+        items.append({'name': name, 'extractors': list(keys), 'available': available,
+                      'status': '引擎已适配 · 未逐项实测' if available else '暂未适配', 'verified': False})
+        used.update(keys)
+    if query:
+        items.extend({'name': key, 'extractors': [key], 'available': True,
+                      'status': '引擎已适配 · 未逐项实测', 'verified': False}
+                     for key in registry if query in key.casefold() and key not in used and key != 'Generic')
+    return {'items': items[:40], 'matched': len(items), 'extractor_count': len(registry),
+            'note': '适配器目录不等于可下载平台数量。实际可用性取决于链接、网络、登录和权限；请查看样例验证记录。'}

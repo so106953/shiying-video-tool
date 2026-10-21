@@ -168,6 +168,6 @@ export async function cloudFile(id) {
   if (!task || task.status !== 'completed') throw new Error('文件尚未完成。');
   const chunks = await chunksFor(id);
   if (!chunks.length || chunks.reduce((n, row) => n + row.blob.size, 0) !== task.total) throw new Error('设备缓存已被浏览器清理，请重新下载。');
-  const type = task.kind === 'audio' ? (task.format === 'mp3' ? 'audio/mpeg' : task.format === 'm4a' ? 'audio/mp4' : 'audio/ogg') : task.format === 'webm' ? 'video/webm' : 'video/mp4';
+  const type = task.kind === 'audio' ? (task.format === 'mp3' ? 'audio/mpeg' : task.format === 'm4a' ? 'audio/mp4' : 'audio/ogg') : task.format === 'webm' ? 'video/webm' : task.format === 'mkv' ? 'video/x-matroska' : 'video/mp4';
   return { url: URL.createObjectURL(new Blob(chunks.map(row => row.blob), { type })), filename: task.filename };
 }

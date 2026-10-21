@@ -57,7 +57,7 @@ def validate_job(payload):
  if payload.get('url')!=expected or payload.get('headers')!=headers:raise ValueError('独立下载服务凭据已变更，请重新解析。')
  return ident
 
-def resolve(url,sign):
+def resolve(url,sign,include_conversions=False):
  if not health()['ffmpeg']:raise ValueError('独立下载服务尚未安装 FFmpeg，无法处理需要合并的视频。')
  parsed=request('POST','/api/parse',{'urls':[url]})['results'][0]
  if parsed.get('status')!='success':raise ValueError(parsed.get('error')or'独立下载服务没有获取到视频。')
@@ -68,11 +68,14 @@ def resolve(url,sign):
  smaller=next((h for h in suitable if h<=480 and h!=recommended),None)
  if smaller:selected.append(smaller)
  options=[]
- for height in selected:
-  task=request('POST','/api/tasks',{'parsed_id':parsed['id'],'kind':'video','format':'mp4','height':height,'queued':True})
+ specifications=[('video',ext,height)for height in selected for ext in (('mp4','mkv')if include_conversions else ('mp4',))]
+ if include_conversions and parsed.get('has_audio',True):
+  specifications.extend(('audio',ext,None)for ext in ('mp3','m4a'))
+ for kind,ext,height in specifications:
+  task=request('POST','/api/tasks',{'parsed_id':parsed['id'],'kind':kind,'format':ext,'height':height,'queued':True})
   source,headers=job_source(task['id'])
-  options.append({'kind':'video','format':'mp4','height':height,'size':None,'codec':None,'delivery':'worker','ticket':sign(source,headers,'mp4',worker_job=task['id'])})
- return parsed|{'cloud':True,'options':options,'heights':[h for h in selected if h],'recommended_height':recommended,'size':None,'backend':'worker'}
+  options.append({'kind':kind,'format':ext,'height':height,'size':None,'codec':None,'delivery':'worker','ticket':sign(source,headers,ext,worker_job=task['id'])})
+ return parsed|{'cloud':True,'options':options,'heights':[h for h in selected if h],'recommended_height':recommended,'size':None,'backend':'worker','expanded_formats':include_conversions}
 
 def prepare(payload,action):
  ident=validate_job(payload)
