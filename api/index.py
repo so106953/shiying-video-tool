@@ -216,6 +216,11 @@ def health():
             'configured': bool(os.environ.get('SHIYING_SIGNING_SECRET')), 'worker_configured': worker_client.configured()}
 
 
+@app.get('/api/extractors')
+def extractors(q: str = ''):
+    return extraction_catalog(q[:128])
+
+
 PLATFORM_GROUPS = {'domestic': [{'name': '今日头条',
                'hint': '完整下载 0.42 MB；开头、结尾解码通过',
                'status': '样例已通过',
@@ -311,19 +316,20 @@ PLATFORM_GROUPS = {'domestic': [{'name': '今日头条',
                     'status': '样例未通过',
                     'verified': False,
                     'sample_url': 'https://youtu.be/EgVjw_-odnE',
-                    'stage': 'parse'}]}
-PLATFORM_CHECKED_AT = '2026-10-15T05:14:54.163892+00:00'
-
-@app.get('/api/extractors')
-def extractors(q: str = ''):
-    return extraction_catalog(q[:128])
-
+                    'stage': 'parse'},
+                   {'name': 'Pinterest',
+                    'hint': '完整下载 3.24 MB；开头、结尾解码通过',
+                    'status': '样例已通过',
+                    'verified': True,
+                    'sample_url': 'https://www.pinterest.com/pin/664281013778109217/',
+                    'stage': 'complete'}]}
+PLATFORM_CHECKED_AT = '2026-10-21T08:53:22.057165+00:00'
 
 @app.get('/api/platforms')
 def platforms():
     return {'groups': PLATFORM_GROUPS, 'checked_at': PLATFORM_CHECKED_AT,
-            'passed': 9, 'total': 16,
-            'note': '已核查 16 个平台：9 个样例完成线上解析、完整下载及开头/结尾解码，6 个样例未通过，1 个尚未适配。通过不代表任意链接均可下载；首页仅展示已通过的平台。'}
+            'passed': 10, 'total': 17,
+            'note': '已核查 17 个平台：10 个样例完成线上解析、完整下载及开头/结尾解码，6 个样例未通过，1 个尚未适配。通过不代表任意链接均可下载；首页仅展示已通过的平台。本次复验 Pinterest，其余为历史样例记录。'}
 
 
 @app.post('/api/parse')

@@ -1,7 +1,7 @@
 {
-  "checked_at": "2026-10-15T05:14:54.163892+00:00",
+  "checked_at": "2026-10-21T08:53:22.057165+00:00",
   "deployment": "https://shiying-video-tool-rho.vercel.app",
-  "scope": "基础全平台核查 + 本轮失败平台诊断与两项修复复验；各记录保留时间和测试部署。Dailymotion 未计为通过。",
+  "scope": "历史平台样例记录 + 本次 Pinterest 公开样例完整下载及解码；本次没有重新验证其他历史平台。",
   "results": [
     {
       "group": "domestic",
@@ -412,6 +412,37 @@
       "test_deployment": "https://shiying-video-tool-rho.vercel.app",
       "diagnosis": "YouTube 要求登录并确认不是机器人，当前云端无法完成此验证。",
       "diagnosed_at": "2026-10-15T05:14:54.163892+00:00"
+    },
+    {
+      "group": "international",
+      "name": "Pinterest",
+      "url": "https://www.pinterest.com/pin/664281013778109217/",
+      "status": "passed",
+      "stage": "complete",
+      "bytes": 3236861,
+      "sha256": "d2cae0e027cc3660040d912775568c59c6d1a95c18a669b0a3e153ab0f1dd772",
+      "media": {
+        "programs": [],
+        "stream_groups": [],
+        "streams": [
+          {
+            "codec_name": "h264",
+            "codec_type": "video",
+            "width": 240,
+            "height": 424
+          },
+          {
+            "codec_name": "aac",
+            "codec_type": "audio"
+          }
+        ],
+        "format": {
+          "duration": "57.736000"
+        }
+      },
+      "decoded_start_and_end": true,
+      "checked_at": "2026-10-21T08:53:22.057165+00:00",
+      "deployment": "https://shiying-video-tool-jw9jdlwdi-chucks-projects-6183d2c6.vercel.app"
     }
   ],
   "optimization_results": {
