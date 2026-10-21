@@ -165,7 +165,7 @@ def haokan(url):
         if node.get('url'):
             dimensions = str(node.get('vodVideoHW', '')).split('$$')
             if len(dimensions) == 2 and all(n.isdigit() for n in dimensions):
-                node = node | {'width': int(dimensions[0]), 'height': int(dimensions[1])}
+                node = node | {'height': int(dimensions[0]), 'width': int(dimensions[1])}
             sources.append(node)
     if video.get('playurl'): sources.append({'url': video['playurl']})
     return media_info('Haokan', ident, video.get('title'), sources, uploader=video.get('mth', {}).get('author_name'),

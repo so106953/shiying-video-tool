@@ -20,6 +20,14 @@ CASES = [
  ('international','Dailymotion','https://www.dailymotion.com/video/x5kesuj'),
  ('international','Reddit','https://www.reddit.com/r/aww/comments/90bu6w/heat_index_was_110_degrees_so_we_offered_him_a/'),
  ('international','Streamable','https://streamable.com/dnd1'),
+ ('domestic','快手','https://v.kuaishou.com/nYOjD3'),
+ ('domestic','好看视频','https://haokan.baidu.com/v?vid=3769263432858270366'),
+ ('domestic','皮皮虾','https://h5.pipix.com/ppx/item/7464040836074838284'),
+ ('domestic','糖豆广场舞','https://m.tangdou.com/play/20000013015012'),
+ ('domestic','网易视频','https://www.163.com/v/video/VK8RJTOC2.html'),
+ ('domestic','知乎','https://www.zhihu.com/zvideo/1342930761977176064'),
+ ('domestic','央视 CCTV','https://sports.cntv.cn/2016/02/12/ARTIaBRxv4rTT1yWf1frW2wi160212.shtml'),
+ ('international','Pinterest','https://www.pinterest.com/pin/664281013778109217/'),
 ]
 def verify(case):
  group,name,url=case
@@ -36,6 +44,13 @@ def verify(case):
    option=next((o for o in options if str(o.get('codec')or'').startswith(('h264','avc'))),options[0])
    if option.get('delivery')=='hls':option=min((o for o in options if o.get('delivery')=='hls'),key=lambda o:o.get('height')or 0)
    row.update(format=option['format'],height=option.get('height'),codec=option.get('codec'))
+   if option.get('delivery')=='worker':
+    import time
+    state=c.post('/api/prepare',json={'ticket':option['ticket'],'action':'start'}).json()
+    for _ in range(180):
+     if state.get('status')in('completed','failed'):break
+     time.sleep(1);state=c.post('/api/prepare',json={'ticket':option['ticket'],'action':'status'}).json()
+    if state.get('status')!='completed':row['error']=state.get('error')or state.get('detail')or'准备超时';return row
    with tempfile.TemporaryDirectory(prefix='shiying-verify-')as tmp:
     path=pathlib.Path(tmp)/('media.'+option['format']);offset=0;digest=hashlib.sha256();complete=False
     if option.get('delivery')=='hls':
@@ -48,7 +63,9 @@ def verify(case):
       for _ in range(87):
        r=c.post('/api/chunk',json={'ticket':option['ticket'],'offset':offset})
        if r.status_code!=200:
-        row['error']=r.json().get('detail','媒体请求失败');return row
+        try:row['error']=r.json().get('detail','媒体请求失败')
+        except ValueError:row['error']=f'媒体请求失败（HTTP {r.status_code}）'
+        return row
        data=r.content;output.write(data);digest.update(data);offset+=len(data)
        if r.headers.get('x-media-end')=='1':complete=True;break
        if not data:break
@@ -61,6 +78,8 @@ def verify(case):
     for at in (0,max(0,duration-2)):
      subprocess.run(['ffmpeg','-v','error','-xerror','-ss',str(at),'-i',str(path),'-t','1','-f','null','-'],capture_output=True,timeout=45,check=True)
     row.update(status='passed',stage='complete',decoded_start_and_end=True)
+    if option.get('delivery')=='worker':
+     for opt in item['options']:c.post('/api/prepare',json={'ticket':opt['ticket'],'action':'delete'})
  except Exception as exc:
   # Never serialize URLs, response headers or tickets from HTTP exceptions.
   row['error']=type(exc).__name__ if not isinstance(exc,subprocess.CalledProcessError)else'媒体解码检查失败'
@@ -72,7 +91,6 @@ if __name__=='__main__':
   for job in concurrent.futures.as_completed(jobs):
    row=job.result();report['results'].append(row);print(json.dumps(row,ensure_ascii=False),flush=True)
    pathlib.Path('docs/platform-verification.json').write_text(json.dumps(report,ensure_ascii=False,indent=2)+'\n')
- report['results'].append({'group':'domestic','name':'快手','status':'unsupported','stage':'engine_check','error':'当前 yt-dlp 没有快手专用解析器，本项目也未实现快手适配，撤下支持声明。'})
  report['results'].sort(key=lambda r:(r['group'],r['name']))
  pathlib.Path('docs/platform-verification.json').write_text(json.dumps(report,ensure_ascii=False,indent=2)+'\n')
  print('DONE',sum(r['status']=='passed'for r in report['results']),len(report['results']),flush=True)

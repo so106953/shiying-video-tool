@@ -24,7 +24,7 @@ def configured():
 
 def preferred(url):
  host=(urlsplit(url).hostname or '').lower()
- return configured() and any(host==domain or host.endswith('.'+domain)for domain in ('youtube.com','youtu.be','bilibili.com','b23.tv','facebook.com','fb.watch','reddit.com','redd.it','vimeo.com','dailymotion.com','dai.ly'))
+ return configured() and any(host==domain or host.endswith('.'+domain)for domain in ('youtube.com','youtu.be','bilibili.com','b23.tv','facebook.com','fb.watch','reddit.com','redd.it','vimeo.com','dailymotion.com','dai.ly','haokan.baidu.com','163.com'))
 
 def request(method,path,body=None):
  config=configuration()

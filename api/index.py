@@ -400,6 +400,8 @@ async def chunk(body: ChunkBody):
             ended = len(data) < CHUNK or bool(total and body.offset + len(data) >= total)
             media_type = upstream.headers.get('content-type', 'application/octet-stream').split(';')[0]
             return Response(bytes(data), media_type=media_type, headers={'X-Media-Total': str(total), 'X-Media-End': '1' if ended else '0'})
+        except httpx.HTTPError:
+            raise HTTPException(502, '媒体分段传输超时或中断，请暂停后重试，已下载的分段会保留。')
         finally:
             await upstream.aclose()
 
